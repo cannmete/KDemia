@@ -1,0 +1,32 @@
+﻿@model List<KDemia.Models.Course>
+
+<div class="container-fluid">
+    <h1 class="h3 mb-4 text-gray-800">Courses</h1>
+
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>Name</th>
+                <th>Description</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var course in Model)
+            {
+                <tr>
+                    <td>@course.Id</td>
+                    <td>@course.Name</td>
+                    <td>@course.Description</td>
+                    <td>
+                        <a class="btn btn-sm btn-primary" href="#">Edit</a>
+                        <a class="btn btn-sm btn-danger" href="#">Delete</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    <a class="btn btn-success" href="#">Add New Course</a>
+</div>
