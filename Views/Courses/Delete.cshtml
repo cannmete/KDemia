@@ -1,0 +1,15 @@
+﻿@{
+    ViewData["Title"] = "Delete";
+}
+@model Course
+<h2>Kurs Sil</h2>
+<hr />
+<hr />
+
+<h5>@Model.courseName Adlı kurs silinecektir, emin misiniz ?</h5>
+
+<form method="post" asp-action="Delete">
+    <input type="hidden" asp-for="Id" />
+    <input type="submit" value="Sil" class="btn btn-danger btn-sm" />
+    <a asp-action="Index" class="btn btn-primary btn-sm">Vazgeç</a>
+</form>

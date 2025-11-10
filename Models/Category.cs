@@ -1,6 +1,8 @@
 ﻿namespace KDemia.Models
 {
-    public class Category
+    public class Category : BaseEntity
     {
+        public string Name { get; set; }
     }
+        
 }

@@ -1,7 +1,18 @@
+using KDemia.Repositories;
+using AutoMapper;
+using KDemia.Models;
+using Microsoft.EntityFrameworkCore;
+using KDemia.Data;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
+
+builder.Services.AddScoped<CourseRepository>();
+builder.Services.AddDbContext<ApplicationDbContext>(
+    options=> options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"))
+    );
 
 var app = builder.Build();
 
@@ -22,6 +33,6 @@ app.UseAuthorization();
 
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller=Home}/{action=Index}/{id?}");
+    pattern: "{controller=Admin}/{action=Index}/{id?}");
 
 app.Run();
