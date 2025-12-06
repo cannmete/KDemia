@@ -1,20 +1,50 @@
-using KDemia.Repositories;
-using AutoMapper;
-using KDemia.Models;
-using Microsoft.EntityFrameworkCore;
+using KDemia;
 using KDemia.Data;
+using KDemia.Mapper;
+using KDemia.Repositories;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Http.Features;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 
-builder.Services.AddScoped<CourseRepository>();
-builder.Services.AddDbContext<ApplicationDbContext>(
-    options=> options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"))
-    );
+// Repository tanýtýmý
+builder.Services.AddScoped(typeof(KDemia.Repositories.GenericRepository<>));
 
+// DB Connection
+
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+builder.Services.AddDbContext<KDemia.Data.AppDbContext>(options =>
+    options.UseSqlServer(connectionString));
+
+// AutoMapper Ayarý
+builder.Services.AddAutoMapper(typeof(UserProfile));
+
+// Cooike Aktive etmek için
+builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+    .AddCookie(options =>
+    {
+        options.LoginPath = "/Auth/Login";                 
+        options.AccessDeniedPath = "/Auth/AccessDenied";    
+        options.ExpireTimeSpan = TimeSpan.FromMinutes(60); // 60 dakika login süresi
+    });
+// 1. Form Seçeneklerini Yüksel ( CONTROLLER ) 
+builder.Services.Configure<FormOptions>(options =>
+{
+    options.MultipartBodyLengthLimit = 104857600; // 100 MB
+});
+
+// 2. Sunucu Limitini Yükselt ( SERVER )
+builder.WebHost.ConfigureKestrel(serverOptions =>
+{
+    serverOptions.Limits.MaxRequestBodySize = 104857600; // 100 MB
+});
 var app = builder.Build();
+
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
@@ -25,14 +55,16 @@ if (!app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-app.UseStaticFiles();
-
 app.UseRouting();
+app.UseAuthentication(); // Kimlik 
+app.UseAuthorization();  // Yetki
 
-app.UseAuthorization();
+app.MapStaticAssets();
 
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller=Admin}/{action=Index}/{id?}");
+    pattern: "{controller=Auth}/{action=Login}/{id?}")
+    .WithStaticAssets();
+
 
 app.Run();
