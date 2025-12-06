@@ -9,6 +9,11 @@
     <div class="col-lg-12">
         <section class="card">
             <header class="card-header">
+                <div class="card-actions">
+                    <a href="/Course/Index" class="btn btn-sm btn-dark">
+                        <i class="fas fa-arrow-left"></i> Listeye Dön
+                    </a>
+                </div>
                 <h2 class="card-title">Eğitim Düzenle: @Model.Course.Title</h2>
             </header>
             <div class="card-body">
@@ -21,6 +26,7 @@
                         <label class="col-lg-3 control-label text-lg-end pt-2">Eğitim Başlığı</label>
                         <div class="col-lg-6">
                             <input asp-for="Course.Title" class="form-control" required />
+                            <span asp-validation-for="Course.Title" class="text-danger"></span>
                         </div>
                     </div>
 
@@ -56,7 +62,10 @@
                         <label class="col-lg-3 control-label text-lg-end pt-2">Video Linki</label>
                         <div class="col-lg-6">
                             <input asp-for="Course.VideoUrl" type="text" class="form-control" placeholder="https://..." />
-                            <small class="text-muted">Mevcut Link: @(Model.Course.VideoUrl ?? "Yok")</small>
+                            @if (!string.IsNullOrEmpty(Model.Course.VideoUrl))
+                            {
+                                <small class="text-info"><a href="@Model.Course.VideoUrl" target="_blank">Mevcut Linki Test Et</a></small>
+                            }
                         </div>
                     </div>
 
@@ -79,14 +88,16 @@
                         <div class="col-lg-6">
                             <div class="checkbox-custom checkbox-default">
                                 <input type="checkbox" asp-for="Course.IsPublished" id="publishCheck">
-                                <label for="publishCheck">Yayında</label>
+                                <label for="publishCheck" class="font-weight-bold text-dark">
+                                    Yayında (İşaretlenirse öğrenciler görebilir)
+                                </label>
                             </div>
                         </div>
                     </div>
 
                     <div class="form-group row">
                         <div class="col-lg-9 text-right">
-                            <button type="submit" class="btn btn-primary">Oluştur</button>
+                            <button type="submit" class="btn btn-primary btn-lg">Değişiklikleri Kaydet</button>
                             <a href="/Course/Index" class="btn btn-default">İptal</a>
                         </div>
                     </div>

@@ -1,5 +1,5 @@
 ﻿@{
-    // Bu dosya Views/Shared/_AdminLayout.cshtml olacak
+
 }
 
 <!doctype html>
@@ -80,6 +80,11 @@
                                             <i class="fas fa-user-shield"></i><span>Kullanıcılar</span>
                                         </a>
                                     </li>
+                                    <li>
+                                        <a asp-controller="Admin" asp-action="ControlPanel">
+                                            <i class="fas fa-user-gear"></i><span>Yetkilendirme</span>
+                                        </a>
+                                    </li>
                                 }
 
                                 <li>
@@ -114,7 +119,7 @@
         </div>
 
         <footer class="footer text-center py-3">
-            <span>&copy; @DateTime.Now.Year KDemia Eğitim Portalı | Tüm hakları saklıdır.</span>
+            <span>&copy; @DateTime.Now.Year KDemia | Tüm hakları saklıdır.</span>
         </footer>
 
     </section>
