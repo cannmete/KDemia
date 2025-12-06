@@ -1,0 +1,48 @@
+﻿@{
+    ViewData["Title"] = "Erişim Engellendi";
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>Erişim Reddedildi</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        body {
+            background-color: #f8f9fa;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .error-card {
+            text-align: center;
+            background: white;
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+        }
+
+        .icon {
+            font-size: 80px;
+            color: #dc3545;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="error-card">
+        <div class="icon">
+            <i class="fas fa-ban"></i> ⛔
+        </div>
+        <h2 class="text-danger">Erişim Reddedildi!</h2>
+        <p class="lead">Bu sayfayı görüntülemek için yetkiniz bulunmuyor.</p>
+        <hr>
+        <a href="/" class="btn btn-primary mt-3">Ana Sayfaya Dön</a>
+        <a href="/Auth/Logout" class="btn btn-secondary mt-3">Farklı Hesapla Giriş Yap</a>
+    </div>
+</body>
+</html>

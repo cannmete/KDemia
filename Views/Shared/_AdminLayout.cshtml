@@ -1,126 +1,131 @@
 ﻿@{
-    Layout = null;
+    // Bu dosya Views/Shared/_AdminLayout.cshtml olacak
 }
 
-<!DOCTYPE html>
-<html lang="en">
+<!doctype html>
+<html class="fixed sidebar-left-collapsed">
 <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>KDemia - @ViewData["Title"]</title>
 
-    <!-- Custom fonts for this template-->
-    <link href="~/vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css" />
+    <link rel="stylesheet" href="~/portoadmin/vendor/bootstrap/css/bootstrap.css" />
+    <link rel="stylesheet" href="~/portoadmin/vendor/font-awesome/css/all.min.css" />
+    <link rel="stylesheet" href="~/portoadmin/css/theme.css" />
+    <link rel="stylesheet" href="~/portoadmin/css/custom.css" />
 
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css?family=Nunito:200,300,400,600,700,800,900" rel="stylesheet" />
+    <script src="~/admin-assets/vendor/modernizr/modernizr.js"></script>
 
-    <!-- Custom styles for this template-->
-    <link href="~/css/sb-admin-2.min.css" rel="stylesheet" />
+    @await RenderSectionAsync("Styles", required: false)
 </head>
 
-<body id="page-top">
-    <!-- Page Wrapper -->
-    <div id="wrapper">
+<body>
+    <section class="body">
 
-        <!-- Sidebar -->
-        <ul class="navbar-nav bg-gradient-primary sidebar sidebar-dark accordion" id="accordionSidebar">
+        <header class="header">
+            <div class="logo-container">
+                <a href="/Admin/Index" class="logo">
+                    <img src="~/portoadmin/img/logo.png" height="30" alt="KDemia Logo" />
+                </a>
 
-            <!-- Sidebar - Brand -->
-            <a class="sidebar-brand d-flex align-items-center justify-content-center" href="/">
-                <div class="sidebar-brand-icon rotate-n-15">
-                    <i class="fas fa-graduation-cap"></i>
+                <div class="d-md-none toggle-sidebar-left" data-toggle-class="sidebar-left-opened">
+                    <i class="fas fa-bars" aria-label="Toggle sidebar"></i>
                 </div>
-                <div class="sidebar-brand-text mx-3">KDemia</div>
-            </a>
-
-            <!-- Divider -->
-            <hr class="sidebar-divider my-0" />
-
-            <!-- Nav Item - Dashboard -->
-            <li class="nav-item active">
-                <a class="nav-link" href="/">
-                    <i class="fas fa-fw fa-tachometer-alt"></i>
-                    <span>Dashboard</span>
-                </a>
-            </li>
-
-            <!-- Divider -->
-            <hr class="sidebar-divider" />
-
-            <!-- Heading -->
-            <div class="sidebar-heading">Education</div>
-
-            <!-- Nav Items -->
-            <li class="nav-item">
-                <a class="nav-link" href="/Courses">
-                    <i class="fas fa-fw fa-book"></i>
-                    <span>Courses</span>
-                </a>
-            </li>
-
-            <li class="nav-item">
-                <a class="nav-link" href="/Students">
-                    <i class="fas fa-fw fa-user-graduate"></i>
-                    <span>Students</span>
-                </a>
-            </li>
-
-            <!-- Divider -->
-            <hr class="sidebar-divider d-none d-md-block" />
-        </ul>
-        <!-- End of Sidebar -->
-        <!-- Content Wrapper -->
-        <div id="content-wrapper" class="d-flex flex-column">
-
-            <!-- Main Content -->
-            <div id="content">
-
-                <!-- Topbar -->
-                <nav class="navbar navbar-expand navbar-light bg-white topbar mb-4 static-top shadow">
-                    <ul class="navbar-nav ml-auto">
-                        <li class="nav-item dropdown no-arrow">
-                            <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button">
-                                <span class="mr-2 d-none d-lg-inline text-gray-600 small">KDemia Admin</span>
-                                <img class="img-profile rounded-circle" src="~/img/undraw_profile.svg" />
-                            </a>
-                        </li>
-                    </ul>
-                </nav>
-                <!-- End of Topbar -->
-                <!-- Begin Page Content -->
-                <div class="container-fluid">
-                    @RenderBody()
-                </div>
-                <!-- End Page Content -->
-
             </div>
-            <!-- End of Main Content -->
-            <!-- Footer -->
-            <footer class="sticky-footer bg-white">
-                <div class="container my-auto">
-                    <div class="copyright text-center my-auto">
-                        <span>Copyright &copy; KDemia @DateTime.Now.Year</span>
+
+            <div class="header-right">
+                <div id="userbox" class="userbox">
+                    <a href="#" data-bs-toggle="dropdown">
+                        <figure class="profile-picture">
+                            <img src="~/portoadmin/img/user.png" class="rounded-circle" alt="User" />
+                        </figure>
+                        <span class="profile-info">
+                            <span class="name">@User.Identity.Name</span>
+                            <span class="role">Yönetici</span>
+                        </span>
+                    </a>
+
+                    <div class="dropdown-menu">
+                        <div class="dropdown-divider"></div>
+                        <a class="dropdown-item" href="/Auth/Logout">
+                            <i class="fas fa-power-off"></i> Çıkış Yap
+                        </a>
                     </div>
                 </div>
-            </footer>
-            <!-- End of Footer -->
+            </div>
+        </header>
+        <div class="inner-wrapper">
+
+            <aside id="sidebar-left" class="sidebar-left">
+                <div class="sidebar-header">
+                    <div class="sidebar-title">
+                        Yönetim Paneli
+                    </div>
+                </div>
+
+                <div class="nano">
+                    <div class="nano-content">
+                        <nav class="nav-main">
+                            <ul class="nav nav-main">
+
+                                <li>
+                                    <a asp-controller="Admin" asp-action="Index">
+                                        <i class="fas fa-home"></i><span>Dashboard</span>
+                                    </a>
+                                </li>
+                                @if (User.IsInRole("Admin"))
+                                {
+                                    <li>
+                                        <a asp-controller="Admin" asp-action="UserList">
+                                            <i class="fas fa-user-shield"></i><span>Kullanıcılar</span>
+                                        </a>
+                                    </li>
+                                }
+
+                                <li>
+                                    <a asp-controller="Category" asp-action="Index">
+                                        <i class="fas fa-list"></i><span>Kategoriler</span>
+                                    </a>
+                                </li>
+
+                                <li>
+                                    <a asp-controller="Course" asp-action="Index">
+                                        <i class="fas fa-graduation-cap"></i><span>Eğitimler</span>
+                                    </a>
+                                </li>
+
+                                
+
+                            </ul>
+                        </nav>
+                    </div>
+                </div>
+            </aside>
+            <section role="main" class="content-body">
+                <header class="page-header">
+                    <h2>@ViewData["Title"]</h2>
+                </header>
+
+                <div class="container-fluid pt-3">
+                    @RenderBody()
+                </div>
+            </section>
 
         </div>
-        <!-- End of Content Wrapper -->
-    </div>
-    <!-- End of Page Wrapper -->
-    <!-- Scroll to Top Button-->
-    <a class="scroll-to-top rounded" href="#page-top">
-        <i class="fas fa-angle-up"></i>
-    </a>
 
-    <!-- Scripts -->
-    <script src="~/vendor/jquery/jquery.min.js"></script>
-    <script src="~/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
-    <script src="~/vendor/jquery-easing/jquery.easing.min.js"></script>
-    <script src="~/js/sb-admin-2.min.js"></script>
-    <script src="~/js/site.js" asp-append-version="true"></script>
+        <footer class="footer text-center py-3">
+            <span>&copy; @DateTime.Now.Year KDemia Eğitim Portalı | Tüm hakları saklıdır.</span>
+        </footer>
+
+    </section>
+
+    <script src="~/portoadmin/vendor/jquery/jquery.js"></script>
+    <script src="~/portoadmin/vendor/popper/umd/popper.min.js"></script>
+    <script src="~/portoadmin/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <script src="~/portoadmin/vendor/nanoscroller/nanoscroller.js"></script>
+    <script src="~/portoadmin/js/theme.js"></script>
+    <script src="~/portoadmin/js/custom.js"></script>
+
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

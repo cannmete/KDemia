@@ -1,0 +1,98 @@
+﻿@model KDemia.ViewModels.CourseViewModel
+
+@{
+    ViewData["Title"] = "Eğitimi Düzenle";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<div class="row">
+    <div class="col-lg-12">
+        <section class="card">
+            <header class="card-header">
+                <h2 class="card-title">Eğitim Düzenle: @Model.Course.Title</h2>
+            </header>
+            <div class="card-body">
+                <form asp-action="Create" method="post" enctype="multipart/form-data">
+
+                    <input type="hidden" asp-for="Course.Id" />
+                    <input type="hidden" asp-for="Course.UserId" />
+
+                    <div class="form-group row pb-3">
+                        <label class="col-lg-3 control-label text-lg-end pt-2">Eğitim Başlığı</label>
+                        <div class="col-lg-6">
+                            <input asp-for="Course.Title" class="form-control" required />
+                        </div>
+                    </div>
+
+                    <div class="form-group row pb-3">
+                        <label class="col-lg-3 control-label text-lg-end pt-2">Kategori</label>
+                        <div class="col-lg-6">
+                            <select asp-for="Course.CategoryId" asp-items="Model.CategoryList" class="form-control">
+                                <option value="">-- Kategori Seçiniz --</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group row pb-3">
+                        <label class="col-lg-3 control-label text-lg-end pt-2">Fiyat (₺)</label>
+                        <div class="col-lg-6">
+                            <input asp-for="Course.Price" type="number" step="0.01" class="form-control" />
+                        </div>
+                    </div>
+
+                    <div class="form-group row pb-3">
+                        <label class="col-lg-3 control-label text-lg-end pt-2">Video Kaynağı</label>
+                        <div class="col-lg-6">
+                            <select asp-for="Course.VideoSource" class="form-control">
+                                <option value="YouTube">YouTube</option>
+                                <option value="Vimeo">Vimeo</option>
+                                <option value="Dailymotion">Dailymotion</option>
+                                <option value="Other">Diğer</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group row pb-3">
+                        <label class="col-lg-3 control-label text-lg-end pt-2">Video Linki</label>
+                        <div class="col-lg-6">
+                            <input asp-for="Course.VideoUrl" type="text" class="form-control" placeholder="https://..." />
+                            <small class="text-muted">Mevcut Link: @(Model.Course.VideoUrl ?? "Yok")</small>
+                        </div>
+                    </div>
+
+                    <div class="form-group row pb-3">
+                        <label class="col-lg-3 control-label text-lg-end pt-2">Kısa Açıklama</label>
+                        <div class="col-lg-6">
+                            <textarea asp-for="Course.ShortDescription" class="form-control" rows="2"></textarea>
+                        </div>
+                    </div>
+
+                    <div class="form-group row pb-3">
+                        <label class="col-lg-3 control-label text-lg-end pt-2">Detaylı İçerik</label>
+                        <div class="col-lg-6">
+                            <textarea asp-for="Course.DetailContent" class="form-control" rows="5"></textarea>
+                        </div>
+                    </div>
+
+                    <div class="form-group row pb-3">
+                        <label class="col-lg-3 control-label text-lg-end pt-2">Durum</label>
+                        <div class="col-lg-6">
+                            <div class="checkbox-custom checkbox-default">
+                                <input type="checkbox" asp-for="Course.IsPublished" id="publishCheck">
+                                <label for="publishCheck">Yayında</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group row">
+                        <div class="col-lg-9 text-right">
+                            <button type="submit" class="btn btn-primary">Oluştur</button>
+                            <a href="/Course/Index" class="btn btn-default">İptal</a>
+                        </div>
+                    </div>
+
+                </form>
+            </div>
+        </section>
+    </div>
+</div>

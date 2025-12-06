@@ -1,0 +1,62 @@
+﻿@model KDemia.ViewModels.LoginViewModel
+
+@{
+    ViewData["Title"] = "Giriş Yap";
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>Giriş - KDemia</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+
+    <style>
+        body {
+            background-color: #ededed;
+        }
+
+        .center-sign {
+            max-width: 400px;
+            margin: 10% auto;
+            padding: 20px;
+            background: #fff;
+            border-top: 5px solid #0088cc;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="center-sign">
+        <h3 class="text-center mb-4">KDemia Giriş</h3>
+
+        <form asp-action="Login" method="post">
+
+            <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+            <div class="form-group">
+                <label>E-Posta</label>
+                <input asp-for="Email" class="form-control" />
+            </div>
+
+            <div class="form-group">
+                <label>Şifre</label>
+                <input asp-for="Password" class="form-control" type="password" />
+            </div>
+
+            <div class="row mt-4">
+                <div class="col-6">
+                    <button type="submit" class="btn btn-primary btn-block">Giriş Yap</button>
+                </div>
+                <div class="col-6">
+                    <a asp-action="Register" class="btn btn-light btn-block">Kayıt Ol</a>
+                </div>
+            </div>
+        </form>
+    </div>
+
+</body>
+</html>

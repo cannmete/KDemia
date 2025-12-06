@@ -1,40 +1,20 @@
 ﻿@{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "Admin Ana Sayfa";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
 }
-@model List<KDemia.Models.Course>
-@if (Model.Count == 0)
-{
-    <div class="alert alert-danger col-md-4 mb-2">Henüz Ürün Eklenmedi!</div>
-}
+<div class="row">
+    <div class="col-md-12">
+        <section class="card">
+            <header class="card-header">
+                <h2 class="card-title">Hoşgeldiniz</h2>
+            </header>
+            <div class="card-body">
+                <p></p>
 
-<div class="container-fluid">
-    <h1 class="h3 mb-4 text-gray-800">Kurslar</h1>
-
-    <table class="table table-bordered">
-        <thead>
-            <tr>
-                <th>Id</th>
-                <th>Name</th>
-                <th>Description</th>
-                <th>Actions</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var course in Model)
-            {
-                <tr>
-                    <td>@course.Id</td>
-                    <td>@course.courseName</td>
-                    <td>@course.Description</td>
-                    <td>
-                        <a asp-action="Update" asp-controller="Courses" class="btn btn-primary btn-sm" asp-route-id="@course.Id">Update</a>
-                        <a asp-action="Delete" asp-controller="Courses" class="btn btn-danger btn-sm" asp-route-id="@course.Id">Delete</a>
-                    </td>
-                </tr>
-            }
-        </tbody>
-    </table>
-
-    <a asp-controller="Courses" asp-action="Add" class="btn btn-success btn-sm">Yeni Kurs Ekle</a>
-
+                <div class="alert alert-info">
+                    KDemia Yönetim Paneline hoşgeldiniz. Sol menüden işlemleri yapabilirsiniz.
+                </div>
+            </div>
+        </section>
+    </div>
 </div>

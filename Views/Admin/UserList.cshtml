@@ -1,0 +1,46 @@
+﻿@model List<KDemia.Models.User>
+
+@{
+    ViewData["Title"] = "Kullanıcı Listesi";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<section class="card">
+    <header class="card-header">
+        <h2 class="card-title">Kayıtlı Kullanıcılar</h2>
+    </header>
+    <div class="card-body">
+        <table class="table table-bordered table-striped mb-0">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Ad Soyad</th>
+                    <th>Email</th>
+                    <th>Rol</th>
+                    <th>Kayıt Tarihi</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var user in Model)
+                {
+                    <tr>
+                        <td>@user.Id</td>
+                        <td>@user.FullName</td>
+                        <td>@user.Email</td>
+                        <td>
+                            @if (user.Role == "Admin")
+                            {
+                                <span class="badge badge-warning">Yönetici</span>
+                            }
+                            else
+                            {
+                                <span class="badge badge-info">Kullanıcı</span>
+                            }
+                        </td>
+                        <td>@user.CreatedDate.ToShortDateString()</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</section>

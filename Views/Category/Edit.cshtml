@@ -1,0 +1,55 @@
+﻿@model KDemia.Models.Category
+
+@{
+    ViewData["Title"] = "Kategori Düzenle";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<div class="row">
+    <div class="col-lg-12">
+        <section class="card">
+            <header class="card-header">
+                <h2 class="card-title">Kategori Düzenle: @Model.Name</h2>
+            </header>
+            <div class="card-body">
+                <form asp-action="Edit" method="post">
+
+                    <input type="hidden" asp-for="Id" />
+                    <input type="hidden" asp-for="CreatedDate" />
+
+                    <div class="form-group row pb-3">
+                        <label class="col-lg-3 control-label text-lg-end pt-2">Kategori Adı</label>
+                        <div class="col-lg-6">
+                            <input asp-for="Name" class="form-control" required />
+                        </div>
+                    </div>
+
+                    <div class="form-group row pb-3">
+                        <label class="col-lg-3 control-label text-lg-end pt-2">Açıklama</label>
+                        <div class="col-lg-6">
+                            <textarea asp-for="Description" class="form-control" rows="3"></textarea>
+                        </div>
+                    </div>
+
+                    <div class="form-group row pb-3">
+                        <label class="col-lg-3 control-label text-lg-end pt-2">Durum</label>
+                        <div class="col-lg-6">
+                            <div class="checkbox-custom checkbox-default">
+                                <input type="checkbox" asp-for="IsActive" id="isActiveCheck">
+                                <label for="isActiveCheck">Aktif</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group row">
+                        <div class="col-lg-9 text-right">
+                            <button type="submit" class="btn btn-success">Güncelle</button>
+                            <a href="/Category/Index" class="btn btn-default">İptal</a>
+                        </div>
+                    </div>
+
+                </form>
+            </div>
+        </section>
+    </div>
+</div>
