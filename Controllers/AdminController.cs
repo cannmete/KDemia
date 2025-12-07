@@ -5,7 +5,7 @@ using KDemia.Repositories;
 
 namespace KDemia.Controllers
 {
-    [Authorize(Roles = "Admin")]
+    [Authorize(Roles="Admin")]
     public class AdminController : Controller
     {
         // 1. DEĞİŞKENLER

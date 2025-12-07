@@ -28,16 +28,16 @@ namespace KDemia.Controllers
             var courses = _courseRepo.GetAll("User", "Category");
             return View(courses);
         }
+
         [HttpGet]
         public IActionResult Index(string search, int? categoryId)
         {
             // 1. Tüm kursları ilişkileriyle birlikte çek.
             var courses = _courseRepo.GetAll("User", "Category").AsQueryable();
 
-            // 2. Arama Kelimesi Filtresi (Başlık veya Açıklamada arar)
+            // 2. Arama Kelimesi Filtresi
             if (!string.IsNullOrEmpty(search))
             {
-                // Büyük/küçük harf duyarsız arama
                 courses = courses.Where(x => x.Title.ToLower().Contains(search.ToLower()) ||
                                              (x.ShortDescription != null && x.ShortDescription.ToLower().Contains(search.ToLower())));
             }
@@ -48,16 +48,16 @@ namespace KDemia.Controllers
                 courses = courses.Where(x => x.CategoryId == categoryId);
             }
 
-            // 4. Dropdown için Kategorileri Hazırla
-            // (Kullanıcının seçtiği kategori sayfada "Seçili" kalsın diye logic ekledik)
-            ViewBag.Categories = _categoryRepo.GetAll().Select(x => new SelectListItem
-            {
-                Text = x.Name,
-                Value = x.Id.ToString(),
-                Selected = x.Id == categoryId
-            }).ToList();
+            // 4.Kategorileri Hazırla
+            ViewBag.Categories = _categoryRepo.GetAll()
+                .Where(x => x.IsActive == true) // Sadece aktif kategoriler filtrede görünsün
+                .Select(x => new SelectListItem
+                {
+                    Text = x.Name,
+                    Value = x.Id.ToString(),
+                    Selected = x.Id == categoryId
+                }).ToList();
 
-            // Filtreleri View'a geri gönder ki inputların içinde yazılı kalsın
             ViewBag.CurrentSearch = search;
             ViewBag.CurrentCategory = categoryId;
 
@@ -71,17 +71,20 @@ namespace KDemia.Controllers
             CourseViewModel model = new CourseViewModel
             {
                 Course = new Course(),
-                CategoryList = _categoryRepo.GetAll().Select(x => new SelectListItem
-                {
-                    Text = x.Name,
-                    Value = x.Id.ToString()
-                })
+                // DEĞİŞİKLİK BURADA: Sadece Aktif Kategorileri Listele
+                CategoryList = _categoryRepo.GetAll()
+                    .Where(x => x.IsActive == true)
+                    .Select(x => new SelectListItem
+                    {
+                        Text = x.Name,
+                        Value = x.Id.ToString()
+                    })
             };
 
             return View(model);
         }
 
-        // 3. CREATE POST (SADE VE GÜVENLİ)
+        // 3. CREATE POST
         [HttpPost]
         public IActionResult Create(CourseViewModel model)
         {
@@ -89,7 +92,6 @@ namespace KDemia.Controllers
             {
                 if (model.Course != null)
                 {
-                    // a. Kullanıcıyı Bul ve Ata.
                     var userEmail = User.Identity.Name;
                     var user = _userRepo.Get(x => x.Email == userEmail);
 
@@ -98,11 +100,9 @@ namespace KDemia.Controllers
                         model.Course.UserId = user.Id;
                     }
 
-                    // b. İlişki hatalarını önlemek için nesneleri boşalt.
                     model.Course.Category = null;
                     model.Course.User = null;
 
-                    // c. Kaydet
                     _courseRepo.Add(model.Course);
                     return RedirectToAction("Index");
                 }
@@ -112,12 +112,14 @@ namespace KDemia.Controllers
                 ModelState.AddModelError("", "Hata: " + ex.Message);
             }
 
-            // Hata varsa listeyi tekrar doldur.
-            model.CategoryList = _categoryRepo.GetAll().Select(x => new SelectListItem
-            {
-                Text = x.Name,
-                Value = x.Id.ToString()
-            });
+            // Hata durumunda listeyi tekrar doldur (SADECE AKTİF OLANLAR)
+            model.CategoryList = _categoryRepo.GetAll()
+                .Where(x => x.IsActive == true)
+                .Select(x => new SelectListItem
+                {
+                    Text = x.Name,
+                    Value = x.Id.ToString()
+                });
 
             return View(model);
         }
@@ -141,15 +143,21 @@ namespace KDemia.Controllers
             var course = _courseRepo.Get(x => x.Id == id);
             if (course == null) return NotFound();
 
+            // DEĞİŞİKLİK BURADA:
+            // Düzenleme sayfasında da sadece aktif kategoriler gelmeli.
+            // NOT: Eğer düzenlediğin kursun kategorisi şu an pasifse, dropdown'da seçili gelmeyebilir
+            // ve kaydettiğinde yeni bir aktif kategori seçmek zorunda kalırsın (ki istediğin de bu).
             CourseViewModel model = new CourseViewModel
             {
                 Course = course,
-                CategoryList = _categoryRepo.GetAll().Select(x => new SelectListItem
-                {
-                    Text = x.Name,
-                    Value = x.Id.ToString(),
-                    Selected = x.Id == course.CategoryId
-                })
+                CategoryList = _categoryRepo.GetAll()
+                    .Where(x => x.IsActive == true) // Filtre
+                    .Select(x => new SelectListItem
+                    {
+                        Text = x.Name,
+                        Value = x.Id.ToString(),
+                        Selected = x.Id == course.CategoryId
+                    })
             };
 
             return View(model);
@@ -161,24 +169,19 @@ namespace KDemia.Controllers
         {
             try
             {
-                // 1. Orijinal kaydı çek
                 var existingCourse = _courseRepo.Get(x => x.Id == model.Course.Id);
 
                 if (existingCourse == null) return NotFound();
 
-                // 2. Alanları Manuel Güncelle (Resim YOK)
                 existingCourse.Title = model.Course.Title;
                 existingCourse.Price = model.Course.Price;
                 existingCourse.ShortDescription = model.Course.ShortDescription;
                 existingCourse.DetailContent = model.Course.DetailContent;
                 existingCourse.IsPublished = model.Course.IsPublished;
                 existingCourse.CategoryId = model.Course.CategoryId;
-
-                // Video Linkleri
                 existingCourse.VideoUrl = model.Course.VideoUrl;
                 existingCourse.VideoSource = model.Course.VideoSource;
 
-                // 3. Veritabanına Yansıt.
                 _courseRepo.Update(existingCourse);
 
                 return RedirectToAction("Index");
@@ -187,13 +190,15 @@ namespace KDemia.Controllers
             {
                 ModelState.AddModelError("", "Hata: " + ex.Message);
 
-                // Hata durumunda listeyi tekrar doldur.
-                model.CategoryList = _categoryRepo.GetAll().Select(x => new SelectListItem
-                {
-                    Text = x.Name,
-                    Value = x.Id.ToString(),
-                    Selected = x.Id == model.Course.CategoryId
-                });
+                // Hata durumunda listeyi tekrar doldur (SADECE AKTİF OLANLAR)
+                model.CategoryList = _categoryRepo.GetAll()
+                    .Where(x => x.IsActive == true)
+                    .Select(x => new SelectListItem
+                    {
+                        Text = x.Name,
+                        Value = x.Id.ToString(),
+                        Selected = x.Id == model.Course.CategoryId
+                    });
 
                 return View(model);
             }

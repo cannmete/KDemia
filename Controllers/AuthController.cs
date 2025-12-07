@@ -1,24 +1,25 @@
 ﻿using AutoMapper;
 using KDemia.Extensions;
 using KDemia.Models;
+using KDemia.Repositories;
 using KDemia.ViewModels;
-using KDemia.Repositories; // Repository namespace'i eklendi
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System.Security.Claims;
+using System;
 using System.Collections.Generic;
+using System.Security.Claims;
 using System.Threading.Tasks;
 
 namespace KDemia.Controllers
 {
+    [AllowAnonymous]
     public class AuthController : Controller
     {
-        // ARTIK Context YOK, Repository VAR
         private readonly GenericRepository<User> _userRepo;
         private readonly IMapper _mapper;
 
-        // Constructor'da Repository istiyoruz
         public AuthController(GenericRepository<User> userRepo, IMapper mapper)
         {
             _userRepo = userRepo;
@@ -38,6 +39,7 @@ namespace KDemia.Controllers
             {
                 var newUser = _mapper.Map<User>(model);
 
+                // Şifreleme (Hashing) İşlemleri
                 string userSalt = Guid.NewGuid().ToString();
                 string rawPassword = model.Password + userSalt;
                 string hashedPassword = rawPassword.ToSHA256();
@@ -45,6 +47,12 @@ namespace KDemia.Controllers
                 newUser.Salt = userSalt;
                 newUser.PasswordHash = hashedPassword;
                 newUser.CreatedDate = DateTime.Now;
+
+                // Varsayılan rolü User olarak atayalım (eğer null geliyorsa)
+                if (string.IsNullOrEmpty(newUser.Role))
+                {
+                    newUser.Role = "User";
+                }
 
                 _userRepo.Add(newUser);
 
@@ -57,6 +65,12 @@ namespace KDemia.Controllers
         [HttpGet]
         public IActionResult Login()
         {
+            // Eğer kullanıcı zaten giriş yapmışsa tekrar Login sayfasına girmesin
+            if (User.Identity.IsAuthenticated)
+            {
+                if (User.IsInRole("Admin")) return RedirectToAction("Index", "Course");
+                return RedirectToAction("Index", "Home");
+            }
             return View();
         }
 
@@ -64,32 +78,53 @@ namespace KDemia.Controllers
         public async Task<IActionResult> Login(LoginViewModel model)
         {
             if (ModelState.IsValid)
-            { 
+            {
                 var user = _userRepo.Get(x => x.Email == model.Email);
 
                 if (user != null)
                 {
+                    // Şifre Kontrolü
                     string rawTry = model.Password + user.Salt;
                     string tryHash = rawTry.ToSHA256();
 
                     if (tryHash == user.PasswordHash)
-                    {   
+                    {
                         var claims = new List<Claim>
                         {
                             new Claim(ClaimTypes.Name, user.Email),
                             new Claim("FullName", user.FullName ?? ""),
-                            new Claim(ClaimTypes.Role, user.Role)
+                            new Claim(ClaimTypes.Role, user.Role ?? "User")
                         };
 
                         var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
-                        var authProperties = new AuthenticationProperties();
+
+                        // --- BENİ HATIRLA AYARLARI ---
+                        var authProperties = new AuthenticationProperties
+                        {
+                            // LoginViewModel'den gelen KeepMe true ise tarayıcı kapansa da cookie silinmez.
+                            IsPersistent = model.KeepMe,
+
+                            // Beni Hatırla seçildiyse 30 gün, seçilmediyse 60 dakika oturum açık kalsın.
+                            ExpiresUtc = model.KeepMe ? DateTime.UtcNow.AddDays(30) : DateTime.UtcNow.AddMinutes(60)
+                        };
 
                         await HttpContext.SignInAsync(
                             CookieAuthenticationDefaults.AuthenticationScheme,
                             new ClaimsPrincipal(claimsIdentity),
-                            authProperties);
+                            authProperties); // authProperties buraya eklendi
 
-                        return RedirectToAction("Index", "Admin");
+                        // --- YÖNLENDİRME MANTIĞI ---
+                        // Admin ise Yönetim Paneline, değilse Ana Sayfaya
+                        if (user.Role == "Admin")
+                        {
+                            // CourseController'ın Index'ine yönlendiriyoruz (Admin Paneli orası olduğu için)
+                            return RedirectToAction("Index", "Admin");
+                        }
+                        else
+                        {
+                            // Normal kullanıcı vitrine gitsin
+                            return RedirectToAction("Index", "Home");
+                        }
                     }
                 }
 
@@ -103,7 +138,7 @@ namespace KDemia.Controllers
         public async Task<IActionResult> Logout()
         {
             await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
-            return RedirectToAction("Login");
+            return RedirectToAction("Login", "Auth");
         }
 
         [HttpGet]

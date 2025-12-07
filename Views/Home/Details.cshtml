@@ -1,0 +1,67 @@
+﻿@model KDemia.Models.Course
+
+@{
+    ViewData["Title"] = Model.Title;
+    Layout = "~/Views/Shared/_Layout.cshtml";
+
+}
+
+<div class="container mt-5">
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card mb-4">
+                <div class="card-body p-0">
+                    @if (!string.IsNullOrEmpty(Model.VideoUrl))
+                    {
+                        <div class="ratio ratio-16x9">
+                            <iframe src="@Model.VideoUrl.Replace("watch?v=", "embed/")" title="Eğitim Videosu" allowfullscreen></iframe>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="p-5 text-center bg-light">
+                            <i class="fas fa-video-slash fa-3x text-muted"></i>
+                            <p class="mt-2">Bu eğitim için önizleme videosu yok.</p>
+                        </div>
+                    }
+                </div>
+            </div>
+
+            <h3>@Model.Title</h3>
+            <p class="text-muted">
+                <span class="badge bg-secondary">@Model.Category?.Name</span>
+                <span class="mx-2">|</span>
+                <i class="fas fa-user"></i> Eğitmen: @(Model.User?.FullName ?? "Bilinmiyor")
+            </p>
+            <hr />
+
+            <h5>Eğitim Hakkında</h5>
+            <p>@Model.DetailContent</p>
+        </div>
+
+        <div class="col-lg-4">
+            <div class="card shadow-sm sticky-top" style="top: 20px;">
+                <div class="card-body">
+                    <h2 class="text-primary font-weight-bold">@Model.Price.ToString("C2")</h2>
+                    <p class="text-muted">Ömür boyu erişim</p>
+
+                    <div class="d-grid gap-2">
+                        <button class="btn btn-success btn-lg btn-block">
+                            <i class="fas fa-cart-plus"></i> Hemen Satın Al
+                        </button>
+                        <button class="btn btn-outline-secondary btn-block">
+                            <i class="far fa-heart"></i> İstek Listesine Ekle
+                        </button>
+                    </div>
+
+                    <hr />
+                    <ul class="list-unstyled small text-muted">
+                        <li class="mb-2"><i class="fas fa-check text-success"></i> Sertifika dahil</li>
+                        <li class="mb-2"><i class="fas fa-check text-success"></i> Mobil ve TV erişimi</li>
+                        <li class="mb-2"><i class="fas fa-check text-success"></i> Kaynak dosyalar</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

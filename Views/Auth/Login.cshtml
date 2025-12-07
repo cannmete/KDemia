@@ -46,6 +46,14 @@
                 <label>Şifre</label>
                 <input asp-for="Password" class="form-control" type="password" />
             </div>
+            <div class="form-group mb-3">
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" asp-for="KeepMe" id="keepMeCheck">
+                    <label class="form-check-label" for="keepMeCheck">
+                        Beni Hatırla
+                    </label>
+                </div>
+            </div>
 
             <div class="row mt-4">
                 <div class="col-6">

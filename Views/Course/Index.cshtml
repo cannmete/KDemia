@@ -122,6 +122,14 @@
                             <span class="category-badge">
                                 @(item.Category?.Name ?? "Genel")
                             </span>
+                            @if (item.IsPublished)
+                            {
+                                <span class="badge badge-success" style="position:absolute; top:10px; left:10px;">Yayında</span>
+                            }
+                            else
+                            {
+                                <span class="badge badge-danger" style="position:absolute; top:10px; left:10px;">Taslak</span>
+                            }
                         </div>
 
                         <div class="p-3 d-flex flex-column" style="height: calc(100% - 180px);">
@@ -150,8 +158,34 @@
                             <div class="border-top pt-3 d-flex justify-content-between">
                                 @if (!string.IsNullOrEmpty(item.VideoUrl))
                                 {
-                                    <a href="@item.VideoUrl" target="_blank" class="btn btn-xs btn-outline-danger">
-                                        <i class="fab fa-youtube"></i> İzle
+
+                                    string iconClass = "fas fa-external-link-alt"; // Varsayılan ikon
+                                    string btnClass = "btn-outline-secondary";       // Varsayılan renk
+                                    string btnText = "İzle";                         // Varsayılan yazı
+
+
+                                    if (item.VideoSource == "YouTube")
+                                    {
+                                        iconClass = "fab fa-youtube";
+                                        btnClass = "btn-outline-danger";
+                                        btnText = "YouTube";
+                                    }
+                                    else if (item.VideoSource == "Vimeo")
+                                    {
+                                        iconClass = "fab fa-vimeo-v";
+                                        btnClass = "btn-outline-info";
+                                        btnText = "Vimeo";
+                                    }
+                                    else if (item.VideoSource == "Dailymotion")
+                                    {
+                                        iconClass = "fab fa-dailymotion";
+                                        btnClass = "btn-outline-dark";
+                                        btnText = "Dailymotion";
+                                    }
+
+
+                                    <a href="@item.VideoUrl" target="_blank" class="btn btn-xs @btnClass">
+                                        <i class="@iconClass"></i> @btnText
                                     </a>
                                 }
                                 else

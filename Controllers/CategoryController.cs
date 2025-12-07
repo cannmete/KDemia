@@ -22,6 +22,7 @@ namespace KDemia.Controllers
             return View(categories);
         }
 
+
         // 2. EKLEME SAYFASI (GET)
         [HttpGet]
         public IActionResult Create()

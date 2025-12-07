@@ -9,11 +9,7 @@
     <div class="col-lg-12">
         <section class="card">
             <header class="card-header">
-                <div class="card-actions">
-                    <a href="/Course/Index" class="btn btn-sm btn-dark">
-                        <i class="fas fa-arrow-left"></i> Listeye Dön
-                    </a>
-                </div>
+
                 <h2 class="card-title">Yeni Eğitim Ekle</h2>
             </header>
             <div class="card-body">
@@ -67,6 +63,7 @@
                         <label class="col-lg-3 control-label text-lg-end pt-2">Kısa Açıklama</label>
                         <div class="col-lg-6">
                             <textarea asp-for="Course.ShortDescription" class="form-control" rows="2" placeholder="Eğitimin önizleme yazısı..."></textarea>
+                            <span asp-validation-for="Course.ShortDescription" class="text-danger"></span>
                         </div>
                     </div>
 
@@ -74,6 +71,7 @@
                         <label class="col-lg-3 control-label text-lg-end pt-2">Detaylı İçerik</label>
                         <div class="col-lg-6">
                             <textarea asp-for="Course.DetailContent" class="form-control" rows="5" placeholder="Eğitimin tüm detayları..."></textarea>
+                            <span asp-validation-for="Course.DetailContent" class="text-danger"></span>
                         </div>
                     </div>
 

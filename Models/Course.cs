@@ -12,12 +12,15 @@ namespace KDemia.Models
 
 
         [MaxLength(25)]
+        [Required(ErrorMessage = "Başlık gereklidir.")]
         public string Title { get; set; }
 
         [MaxLength(50)]
+        [Required(ErrorMessage = "Kısa açıklama gereklidir.")]
 
         public string ShortDescription { get; set; }
 
+        [Required(ErrorMessage = "İçerik detayı gereklidir.")]
         public string DetailContent { get; set; }
 
         // Kurs Fiyatı
