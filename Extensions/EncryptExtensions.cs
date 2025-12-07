@@ -4,7 +4,7 @@ using System.Runtime.Intrinsics.Arm;
 using System.Security.Cryptography;
 using System.Text;
 
-namespace KDemia.Extensions  // Bu Extension' un var olma amacı NETCore.Encrypt.Extensions' un uygun bir sürümünü bulamadığım içindir.
+namespace KDemia.Extensions  
 {
     public static class EncryptExtensions
     {
