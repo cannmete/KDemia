@@ -7,7 +7,7 @@ It is developed using **ASP.NET Core MVC + Web API**.
 - MVC views for course list and details
 - Entity Framework Core for database connection
 - Generic Repository usage
-- User roles: Student / Instructor / Admin (using Identity)
+- User roles: Student / Instructor / Admin
 
 ### Future Plans
 - Adding and editing courses
@@ -27,7 +27,7 @@ Bu proje bir eğitim portalı örneğidir.
 - Kurs listesi ve detay sayfaları için MVC view’lar
 - Veri tabanı bağlantısı için Entity Framework Core
 - Generic Repository kullanımı
-- Kullanıcı rolleri: Öğrenci / Eğitmen / Admin (Identity ile)
+- Kullanıcı rolleri: Öğrenci / Eğitmen / Admin
 
 ### Gelecek Planlar
 - Kurs ekleme/düzenleme
