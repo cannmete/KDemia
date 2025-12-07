@@ -25,9 +25,6 @@ namespace KDemia.Models
         // Kategori Durumu (Aktif/Pasif)
         public bool IsActive { get; set; } = true;
 
-        // İlişkisel Özellik (Navigation Property)
-        // Bir kategori birden fazla kursa sahip olabilir (One-to-Many).
-        // 'virtual' keyword'ü Lazy Loading için önemlidir.
         public virtual ICollection<Course> Courses { get; set; } = new List<Course>();
     }
 }

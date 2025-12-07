@@ -32,17 +32,7 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
         options.AccessDeniedPath = "/Auth/AccessDenied";    
         options.ExpireTimeSpan = TimeSpan.FromMinutes(60); // 60 dakika login süresi
     });
-// 1. Form Seçeneklerini Yüksel ( CONTROLLER ) 
-builder.Services.Configure<FormOptions>(options =>
-{
-    options.MultipartBodyLengthLimit = 104857600; // 100 MB
-});
 
-// 2. Sunucu Limitini Yükselt ( SERVER )
-builder.WebHost.ConfigureKestrel(serverOptions =>
-{
-    serverOptions.Limits.MaxRequestBodySize = 104857600; // 100 MB
-});
 var app = builder.Build();
 
 

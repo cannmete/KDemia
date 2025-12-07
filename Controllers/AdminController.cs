@@ -24,7 +24,7 @@ namespace KDemia.Controllers
         // 3. DASHBOARD
         public IActionResult Index()
         {
-            // Veritabanı boşsa veya hata varsa 0 yazsın, patlamasın diye try-catch kullanıyoruz.
+
             try
             {
                 var users = _userRepo.GetAll();
@@ -35,34 +35,32 @@ namespace KDemia.Controllers
             }
             catch
             {
-                // En kötü senaryoda dashboard yine de açılsın
                 ViewBag.TotalUsers = 0;
                 ViewBag.TotalCourses = 0;
             }
 
-            return View(); // Model göndermiyoruz artık
+            return View();
         }
 
-        // 4. KULLANICI LİSTESİ (Senin istediğin ayrı sayfa)
+        // 4. KULLANICI LİSTESİ
         [HttpGet]
         public IActionResult UserList()
         {
             var users = _userRepo.GetAll();
-            return View(users); // Views/Admin/UserList.cshtml'e gider
+            return View(users); // Views/Admin/UserList.cshtml'e gider.
         }
 
 
 
-        // 5. CONTROL PANEL (Yönetim Sayfası)
+        // 5. CONTROL PANEL
         [HttpGet]
         public IActionResult ControlPanel()
         {
-            // Bu da kullanıcıları listeler ama ControlPanel.cshtml view'ını kullanır
             var users = _userRepo.GetAll();
-            return View(users); // Views/Admin/ControlPanel.cshtml'e gider
+            return View(users);
         }
 
-        // 6. ROL DEĞİŞTİRME (ControlPanel içindeki "Kaydet" butonu buraya gelir)
+        // 6. ROL DEĞİŞTİRME
         [HttpPost]
         public IActionResult ChangeRole(int id, string role)
         {
@@ -71,10 +69,8 @@ namespace KDemia.Controllers
             if (user != null)
             {
                 user.Role = role;
-                _userRepo.Update(user); // GenericRepo dan çekiyor
+                _userRepo.Update(user);
             }
-
-            // İşlem bitince tekrar ControlPanel'e dön
             return RedirectToAction("ControlPanel");
         }
 
@@ -120,7 +116,6 @@ namespace KDemia.Controllers
                 existingUser.Role = user.Role;
 
                 // DİKKAT: Şifreye dokunmuyoruz, eski şifresi kalsın.
-                // existingUser.Password = ... (Bunu yapma)
 
                 _userRepo.Update(existingUser);
 
@@ -141,11 +136,10 @@ namespace KDemia.Controllers
             {
                 return NotFound();
             }
-            // Bu, senin hazırladığın kırmızı uyarıların olduğu sayfayı açar
             return View(user);
         }
 
-        // 2. GERÇEKTEN SİL (POST)
+        // 2.  SİL (POST)
         // View'daki form "Delete" action'ına POST atıyor.
         [HttpPost, ActionName("Delete")]
         public IActionResult DeleteConfirmed(int id)
@@ -156,8 +150,6 @@ namespace KDemia.Controllers
             {
                 _userRepo.Delete(user);
             }
-
-            // Silme bitince listeye dön
             return RedirectToAction("ControlPanel");
         }
     }

@@ -59,10 +59,6 @@ namespace KDemia.Controllers
         {
             if (ModelState.IsValid)
             {
-                // Mevcut veriyi veritabanından çekmiyoruz, EF Core Update metodu ile direkt güncelliyoruz.
-                // Ancak CreatedDate kaybolmasın diye Hidden input ile view'dan gelmeli.
-                // Veya Repositories içindeki Update metodumuz tüm alanları günceller.
-
                 _categoryRepo.Update(category);
                 return RedirectToAction("Index");
             }

@@ -98,7 +98,7 @@ namespace KDemia.Controllers
 
                         var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
 
-                        // --- BENİ HATIRLA AYARLARI ---
+                        // --- Keep Me ---
                         var authProperties = new AuthenticationProperties
                         {
                             // LoginViewModel'den gelen KeepMe true ise tarayıcı kapansa da cookie silinmez.
@@ -117,12 +117,12 @@ namespace KDemia.Controllers
                         // Admin ise Yönetim Paneline, değilse Ana Sayfaya
                         if (user.Role == "Admin")
                         {
-                            // CourseController'ın Index'ine yönlendiriyoruz (Admin Paneli orası olduğu için)
+                            // Dashboarda yönlendiriyoruz.
                             return RedirectToAction("Index", "Admin");
                         }
                         else
                         {
-                            // Normal kullanıcı vitrine gitsin
+                            // Normal kullanıcı Home/Index' e gitsin.
                             return RedirectToAction("Index", "Home");
                         }
                     }

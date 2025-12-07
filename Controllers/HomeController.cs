@@ -8,7 +8,6 @@ using System.Linq;
 
 namespace KDemia.Controllers
 {
-    // Bu Controller Herkese Açýktýr
     [AllowAnonymous]
     public class HomeController : Controller
     {
@@ -21,10 +20,9 @@ namespace KDemia.Controllers
             _categoryRepo = categoryRepo;
         }
 
-        // 1. VÝTRÝN SAYFASI (Katalog)
+        // 1. Home/Index
         public IActionResult Index(string search, int? categoryId)
-        {
-            // Sadece YAYINDA (IsPublished == true) olanlarý getir
+        { 
             var courses = _courseRepo.GetAll("Category", "User")
                                      .Where(x => x.IsPublished == true)
                                      .AsQueryable();
@@ -42,7 +40,7 @@ namespace KDemia.Controllers
                 courses = courses.Where(x => x.CategoryId == categoryId);
             }
 
-            // Kategorileri Dropdown için hazýrla (Sidebar veya üst menü için)
+            // Kategorileri Dropdown için hazýrla
             ViewBag.Categories = _categoryRepo.GetAll().Select(x => new SelectListItem
             {
                 Text = x.Name,
@@ -67,10 +65,6 @@ namespace KDemia.Controllers
             {
                 return NotFound();
             }
-
-            // Kategori bilgisini de yükleyelim (Repo Get metodun include destekliyorsa oradan, yoksa manuel)
-            // Eðer Get metodun include parametresi almýyorsa, lazy loading veya ayrý çaðrý gerekebilir.
-            // Þimdilik basitçe kategoriyi de çekelim:
             course.Category = _categoryRepo.Get(x => x.Id == course.CategoryId);
 
             return View(course);
