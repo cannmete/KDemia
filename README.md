@@ -7,13 +7,12 @@ It is developed using **ASP.NET Core MVC + Web API**.
 - MVC views for course list and details
 - Entity Framework Core for database connection
 - Generic Repository usage
-- User roles: Student / Instructor / Admin
-
-### Future Plans
+- User roles: Student / Admin
 - Adding and editing courses
-- Enrollment and review system
 - Admin panel development
 
+### Future Plans
+- Enrollment and review system
 
 ### License
 This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
@@ -27,12 +26,12 @@ Bu proje bir eğitim portalı örneğidir.
 - Kurs listesi ve detay sayfaları için MVC view’lar
 - Veri tabanı bağlantısı için Entity Framework Core
 - Generic Repository kullanımı
-- Kullanıcı rolleri: Öğrenci / Eğitmen / Admin
+- Kullanıcı rolleri: Öğrenci / Admin
+- Kurs ekleme/düzenleme
+- Admin paneli geliştirme
 
 ### Gelecek Planlar
-- Kurs ekleme/düzenleme
 - Kayıt ve yorum sistemi
-- Admin paneli geliştirme
 
 ### Lisans
 Bu proje **MIT Lisansı** altında lisanslanmıştır. Detaylar için [LICENSE](LICENSE) dosyasına bakınız.
