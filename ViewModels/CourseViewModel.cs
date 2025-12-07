@@ -12,7 +12,5 @@ namespace KDemia.ViewModels
 
         // Dropdown için Kategori Listesi
         public IEnumerable<SelectListItem> CategoryList { get; set; }
-        public IFormFile? ImageUpload { get; set; }
-        public IFormFile? VideoUpload { get; set; }
     }
 }

@@ -1,19 +1,116 @@
 ﻿@{
-    ViewData["Title"] = "Admin Ana Sayfa";
+    ViewData["Title"] = "Yönetim Paneli";
     Layout = "~/Views/Shared/_AdminLayout.cshtml";
 }
+
+<div class="row mb-4">
+    <div class="col-md-6 col-xl-6">
+        <section class="card card-featured-left card-featured-primary">
+            <div class="card-body">
+                <div class="widget-summary">
+                    <div class="widget-summary-col widget-summary-col-icon">
+                        <div class="summary-icon bg-primary">
+                            <i class="fas fa-users"></i>
+                        </div>
+                    </div>
+                    <div class="widget-summary-col">
+                        <div class="summary">
+                            <h4 class="title">Toplam Kullanıcı</h4>
+                            <div class="info">
+                                <strong class="amount">@ViewBag.TotalUsers</strong>
+                            </div>
+                        </div>
+                        <div class="summary-footer">
+                            <a class="text-muted text-uppercase" href="/Admin/UserList">(Listeye Git)</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <div class="col-md-6 col-xl-6">
+        <section class="card card-featured-left card-featured-success">
+            <div class="card-body">
+                <div class="widget-summary">
+                    <div class="widget-summary-col widget-summary-col-icon">
+                        <div class="summary-icon bg-success">
+                            <i class="fas fa-graduation-cap"></i>
+                        </div>
+                    </div>
+                    <div class="widget-summary-col">
+                        <div class="summary">
+                            <h4 class="title">Toplam Eğitim</h4>
+                            <div class="info">
+                                <strong class="amount">@ViewBag.TotalCourses</strong>
+                            </div>
+                        </div>
+                        <div class="summary-footer">
+                            <a class="text-muted text-uppercase" href="/Course/Index">(Kurslara Git)</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+</div>
+
 <div class="row">
-    <div class="col-md-12">
+    <div class="col-lg-12">
         <section class="card">
             <header class="card-header">
-                <h2 class="card-title">Hoşgeldiniz</h2>
+                <h2 class="card-title">Yönetim Paneli İşlemleri</h2>
+                <p class="card-subtitle">Sistemi yönetmek için aşağıdaki modülleri kullanabilirsiniz.</p>
             </header>
             <div class="card-body">
-                <p></p>
+                
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="feature-box feature-box-style-2">
+                            <div class="feature-box-icon">
+                                <i class="fas fa-list text-info"></i>
+                            </div>
+                            <div class="feature-box-info">
+                                <h4 class="mb-2">Kategoriler</h4>
+                                <p class="mb-2">Eğitimlerin listeleneceği ana kategorileri oluşturun, düzenleyin veya pasife alın.</p>
+                                <a href="/Category/Index" class="btn btn-sm btn-info text-white">Yönet <i class="fas fa-arrow-right ml-1"></i></a>
+                            </div>
+                        </div>
+                    </div>
 
-                <div class="alert alert-info">
-                    KDemia Yönetim Paneline hoşgeldiniz. Sol menüden işlemleri yapabilirsiniz.
+                    <div class="col-md-4">
+                        <div class="feature-box feature-box-style-2">
+                            <div class="feature-box-icon">
+                                <i class="fas fa-video text-primary"></i>
+                            </div>
+                            <div class="feature-box-info">
+                                <h4 class="mb-2">Eğitimler</h4>
+                                <p class="mb-2">Yeni video eğitimler ekleyin, içeriklerini düzenleyin ve yayın durumunu değiştirin.</p>
+                                <a href="/Course/Index" class="btn btn-sm btn-primary">Yönet <i class="fas fa-arrow-right ml-1"></i></a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-4">
+                        <div class="feature-box feature-box-style-2">
+                            <div class="feature-box-icon">
+                                <i class="fas fa-user-shield text-dark"></i>
+                            </div>
+                            <div class="feature-box-info">
+                                <h4 class="mb-2">Kullanıcılar</h4>
+                                <p class="mb-2">Kayıtlı kullanıcıları görüntüleyin.</p>
+                                <a href="/Admin/UserList" class="btn btn-sm btn-dark">Yönet <i class="fas fa-arrow-right ml-1"></i></a>
+                            </div>
+                        </div>
+                    </div>
                 </div>
+
+                <hr class="dotted short">
+
+                <div class="alert alert-info mt-4">
+                    <strong>Bilgi:</strong> Sistem versiyonu <strong>v1.0.0 (Beta)</strong> olarak çalışmaktadır. Herhangi bir hata durumunda geliştirici ile iletişime geçiniz.
+                </div>
+
             </div>
         </section>
     </div>

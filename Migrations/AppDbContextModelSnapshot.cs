@@ -86,9 +86,6 @@ namespace KDemia.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("ImagePath")
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<bool>("IsPublished")
                         .HasColumnType("bit");
 

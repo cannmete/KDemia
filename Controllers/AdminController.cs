@@ -10,19 +10,37 @@ namespace KDemia.Controllers
     {
         // 1. DEĞİŞKENLER
         private readonly GenericRepository<User> _userRepo;
+        private readonly GenericRepository<Course> _courseRepo;
         private readonly GenericRepository<Category> _categoryRepo;
 
         // 2. CONSTRUCTOR 
-        public AdminController(GenericRepository<User> userRepo, GenericRepository<Category> categoryRepo)
+        public AdminController(GenericRepository<User> userRepo, GenericRepository<Category> categoryRepo, GenericRepository<Course> courseRepo)
         {
             _userRepo = userRepo;
             _categoryRepo = categoryRepo;
+            _courseRepo = courseRepo;
         }
 
         // 3. DASHBOARD
         public IActionResult Index()
         {
-            return View();
+            // Veritabanı boşsa veya hata varsa 0 yazsın, patlamasın diye try-catch kullanıyoruz.
+            try
+            {
+                var users = _userRepo.GetAll();
+                var courses = _courseRepo.GetAll();
+
+                ViewBag.TotalUsers = users != null ? users.Count() : 0;
+                ViewBag.TotalCourses = courses != null ? courses.Count() : 0;
+            }
+            catch
+            {
+                // En kötü senaryoda dashboard yine de açılsın
+                ViewBag.TotalUsers = 0;
+                ViewBag.TotalCourses = 0;
+            }
+
+            return View(); // Model göndermiyoruz artık
         }
 
         // 4. KULLANICI LİSTESİ (Senin istediğin ayrı sayfa)

@@ -5,6 +5,7 @@ using KDemia.Models;
 using KDemia.Repositories;
 using KDemia.ViewModels;
 using System.Linq;
+using System;
 
 namespace KDemia.Controllers
 {
@@ -15,11 +16,17 @@ namespace KDemia.Controllers
         private readonly GenericRepository<Category> _categoryRepo;
         private readonly GenericRepository<User> _userRepo;
 
-        public CourseController(GenericRepository<Course> courseRepo, GenericRepository<Category> categoryRepo, GenericRepository<User> userRepo)
+
+        public CourseController(
+            GenericRepository<Course> courseRepo,
+            GenericRepository<Category> categoryRepo,
+            GenericRepository<User> userRepo)
+
         {
             _courseRepo = courseRepo;
             _categoryRepo = categoryRepo;
             _userRepo = userRepo;
+
         }
 
         // 1. LİSTELEME
@@ -32,25 +39,21 @@ namespace KDemia.Controllers
         [HttpGet]
         public IActionResult Index(string search, int? categoryId)
         {
-            // 1. Tüm kursları ilişkileriyle birlikte çek.
             var courses = _courseRepo.GetAll("User", "Category").AsQueryable();
 
-            // 2. Arama Kelimesi Filtresi
             if (!string.IsNullOrEmpty(search))
             {
                 courses = courses.Where(x => x.Title.ToLower().Contains(search.ToLower()) ||
                                              (x.ShortDescription != null && x.ShortDescription.ToLower().Contains(search.ToLower())));
             }
 
-            // 3. Kategori Filtresi
             if (categoryId != null && categoryId > 0)
             {
                 courses = courses.Where(x => x.CategoryId == categoryId);
             }
 
-            // 4.Kategorileri Hazırla
             ViewBag.Categories = _categoryRepo.GetAll()
-                .Where(x => x.IsActive == true) // Sadece aktif kategoriler filtrede görünsün
+                .Where(x => x.IsActive == true)
                 .Select(x => new SelectListItem
                 {
                     Text = x.Name,
@@ -71,7 +74,6 @@ namespace KDemia.Controllers
             CourseViewModel model = new CourseViewModel
             {
                 Course = new Course(),
-                // DEĞİŞİKLİK BURADA: Sadece Aktif Kategorileri Listele
                 CategoryList = _categoryRepo.GetAll()
                     .Where(x => x.IsActive == true)
                     .Select(x => new SelectListItem
@@ -112,7 +114,6 @@ namespace KDemia.Controllers
                 ModelState.AddModelError("", "Hata: " + ex.Message);
             }
 
-            // Hata durumunda listeyi tekrar doldur (SADECE AKTİF OLANLAR)
             model.CategoryList = _categoryRepo.GetAll()
                 .Where(x => x.IsActive == true)
                 .Select(x => new SelectListItem
@@ -143,15 +144,11 @@ namespace KDemia.Controllers
             var course = _courseRepo.Get(x => x.Id == id);
             if (course == null) return NotFound();
 
-            // DEĞİŞİKLİK BURADA:
-            // Düzenleme sayfasında da sadece aktif kategoriler gelmeli.
-            // NOT: Eğer düzenlediğin kursun kategorisi şu an pasifse, dropdown'da seçili gelmeyebilir
-            // ve kaydettiğinde yeni bir aktif kategori seçmek zorunda kalırsın (ki istediğin de bu).
             CourseViewModel model = new CourseViewModel
             {
                 Course = course,
                 CategoryList = _categoryRepo.GetAll()
-                    .Where(x => x.IsActive == true) // Filtre
+                    .Where(x => x.IsActive == true)
                     .Select(x => new SelectListItem
                     {
                         Text = x.Name,
@@ -190,7 +187,6 @@ namespace KDemia.Controllers
             {
                 ModelState.AddModelError("", "Hata: " + ex.Message);
 
-                // Hata durumunda listeyi tekrar doldur (SADECE AKTİF OLANLAR)
                 model.CategoryList = _categoryRepo.GetAll()
                     .Where(x => x.IsActive == true)
                     .Select(x => new SelectListItem
