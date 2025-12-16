@@ -1,0 +1,66 @@
+﻿@model List<KDemia.Models.CourseEnrollment>
+
+@{
+    ViewData["Title"] = "Kurslarım";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container mt-5" style="min-height: 60vh;">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="font-weight-bold">Öğrenim İçeriğim</h2>
+        <span class="badge bg-primary fs-6">Toplam: @Model.Count Kurs</span>
+    </div>
+
+    @if (Model == null || Model.Count == 0)
+    {
+        <div class="alert alert-info text-center p-5 rounded shadow-sm">
+            <i class="fas fa-graduation-cap fa-3x mb-3 text-info"></i>
+            <h4>Henüz kayıtlı bir kursunuz yok.</h4>
+            <p>Kendinizi geliştirmek için hemen eğitimlere göz atın!</p>
+            <a asp-controller="Home" asp-action="Index" class="btn btn-primary mt-3 px-4">Kursları Keşfet</a>
+        </div>
+    }
+    else
+    {
+        <div class="row">
+            @foreach (var item in Model)
+            {
+                <div class="col-md-3 mb-4">
+                    <div class="card h-100 shadow-sm border-0 position-relative group-hover">
+
+                        <div class="position-absolute top-0 end-0 p-2" style="z-index: 10;">
+                            <form asp-action="RemoveCourse" method="post">
+                                <input type="hidden" name="enrollmentId" value="@item.Id" />
+                                <button type="submit" class="btn btn-sm btn-danger rounded-circle shadow"
+                                        onclick="return confirm('Bu eğitimi iade etmek (silmek) istediğinize emin misiniz?');"
+                                        title="Kursu İade Et / Sil">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            </form>
+                        </div>
+
+                        <div style="height: 140px; background-color: #2b5876; display:flex; align-items:center; justify-content:center;" class="rounded-top">
+                            <i class="fas fa-play-circle fa-3x text-white-50"></i>
+                        </div>
+
+                        <div class="card-body">
+                            <h6 class="card-title text-truncate fw-bold mb-1" title="@item.Course?.Title">@item.Course?.Title</h6>
+                            <small class="text-muted d-block mb-2">Satın Alınan: @item.EnrollmentDate.ToShortDateString()</small>
+
+                            <div class="progress" style="height: 5px;">
+                                <div class="progress-bar bg-success" role="progressbar" style="width: 10%"></div>
+                            </div>
+                            <small class="text-success fw-bold">%10 Tamamlandı</small>
+                        </div>
+
+                        <div class="card-footer bg-white border-0 pt-0">
+                            <a asp-controller="Home" asp-action="Details" asp-route-id="@item.CourseId" class="btn btn-outline-primary btn-sm w-100">
+                                <i class="fas fa-play me-2"></i> Eğitime Devam Et
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</div>

@@ -1,0 +1,86 @@
+﻿@model KDemia.Models.Course
+
+@{
+    ViewData["Title"] = "Ödeme Yap";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container mt-5 mb-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-lg border-0">
+                <div class="card-header bg-primary text-white p-3">
+                    <h4 class="mb-0"><i class="fas fa-lock me-2"></i> Güvenli Ödeme</h4>
+                </div>
+                <div class="card-body p-4">
+
+                    <div class="alert alert-light border d-flex justify-content-between align-items-center mb-4">
+                        <div>
+                            <h5 class="mb-0">@Model.Title</h5>
+                            <small class="text-muted">Eğitmen: @(Model.User?.FullName ?? "KDemia")</small>
+                        </div>
+                        <h3 class="text-primary mb-0">@Model.Price.ToString("C2")</h3>
+                    </div>
+
+                    <form asp-action="CompletePurchase" method="post" id="paymentForm">
+                        <input type="hidden" name="courseId" value="@Model.Id" />
+
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Kart Üzerindeki İsim</label>
+                            <input type="text" class="form-control" placeholder="Ad Soyad" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Kart Numarası</label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="far fa-credit-card"></i></span>
+                                <input type="text" class="form-control" placeholder="0000 0000 0000 0000" maxlength="19" required>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-bold">Son Kullanma (Ay/Yıl)</label>
+                                <input type="text" class="form-control" placeholder="MM/YY" maxlength="5" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-bold">CVV</label>
+                                <input type="text" class="form-control" placeholder="123" maxlength="3" required>
+                            </div>
+                        </div>
+
+                        <hr class="my-4">
+
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-success btn-lg" id="payButton">
+                                <span id="btnText">Ödemeyi Tamamla (@Model.Price.ToString("C2"))</span>
+                                <span id="btnSpinner" class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
+                                <span id="processingText" class="d-none ms-2">Ödeme İşleniyor...</span>
+                            </button>
+                        </div>
+
+                        <div class="text-center mt-3">
+                            <small class="text-muted"><i class="fas fa-shield-alt"></i> Ödemeniz 256-bit SSL ile korunmaktadır. (Demo)</small>
+                        </div>
+                    </form>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.getElementById("paymentForm").addEventListener("submit", function() {
+        var btn = document.getElementById("payButton");
+        var btnText = document.getElementById("btnText");
+        var spinner = document.getElementById("btnSpinner");
+        var processingText = document.getElementById("processingText");
+
+        // Butonu pasif yap ve spinner'ı göster
+        btn.disabled = true;
+        btnText.classList.add("d-none");
+        spinner.classList.remove("d-none");
+        processingText.classList.remove("d-none");
+    });
+</script>

@@ -169,9 +169,9 @@
                     <div class="d-grid gap-2 mb-4">
                         @if (User.Identity.IsAuthenticated)
                         {
-                            <button class="btn btn-success btn-lg fw-bold">
-                                <i class="fas fa-shopping-cart me-2"></i> Hemen Satın Al
-                            </button>
+                            <a asp-controller="Enrollment" asp-action="Checkout" asp-route-courseId="@Model.Id" class="btn btn-success btn-lg fw-bold w-100 mb-2">
+                                <i class="fas fa-credit-card me-2"></i> Hemen Satın Al
+                            </a>
                             <button class="btn btn-outline-secondary">
                                 <i class="far fa-heart me-2"></i> İstek Listesine Ekle
                             </button>
