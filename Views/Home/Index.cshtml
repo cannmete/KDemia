@@ -34,6 +34,17 @@
 
     @foreach (var item in Model)
     {
+       
+            double avgScore = 0;
+            if (item.Reviews != null && item.Reviews.Count > 0)
+            {
+                avgScore = item.Reviews.Average(x => x.Rating);
+            }
+            // Yuvarlama yapabiliriz (örn: 4.5 üstü 5 görünsün gibi) veya direkt alabiliriz.
+            // Gösterim için tam sayıya yuvarlıyorum:
+            int fullStars = (int)Math.Round(avgScore); 
+        
+
         <div class="col-md-4 mb-4">
             <div class="card h-100 shadow-sm border-0 hover-effect">
                 <div style="height: 200px; background-color: #eee; display:flex; align-items:center; justify-content:center; overflow:hidden;">
@@ -42,18 +53,39 @@
                 </div>
 
                 <div class="card-body d-flex flex-column">
-                    <h5 class="card-title text-dark">@item.Title</h5>
+                    <h5 class="card-title text-dark mb-1">@item.Title</h5>
+                    
+                    <div class="mb-2">
+                        @if (avgScore > 0)
+                        {
+                            <div class="text-warning small" title="Ortalama Puan: @avgScore.ToString("0.0")">
+                                @for (int i = 0; i < fullStars; i++)
+                                {
+                                    <i class="fas fa-star"></i>
+                                }
+                                @for (int i = fullStars; i < 5; i++)
+                                {
+                                    <i class="far fa-star text-muted"></i>
+                                }
+                                <span class="text-muted ms-1" style="font-size: 0.8rem;">(@item.Reviews.Count)</span>
+                            </div>
+                        }
+                        else
+                        {
+                            <small class="text-muted"><i class="far fa-star"></i> Henüz değerlendirilmedi</small>
+                        }
+                    </div>
                     <p class="card-text text-muted small">
                         @(item.ShortDescription != null && item.ShortDescription.Length > 80
-                                            ? item.ShortDescription.Substring(0, 80) + "..."
-                                            : item.ShortDescription)
-                </p>
+                            ? item.ShortDescription.Substring(0, 80) + "..."
+                            : item.ShortDescription)
+                    </p>
 
                     <div class="mt-auto d-flex justify-content-between align-items-center">
                         <span class="text-primary fw-bold" style="font-size: 1.2rem;">
                             @item.Price.ToString("C2")
                         </span>
-                        <a href="/Home/Details/@item.Id" class="btn btn-outline-dark btn-sm">İncele</a>
+                        <a asp-controller="Home" asp-action="Details" asp-route-id="@item.Id" class="btn btn-outline-dark btn-sm">İncele</a>
                     </div>
                 </div>
                 <div class="card-footer bg-white border-0 text-muted small">
@@ -61,7 +93,7 @@
                 </div>
             </div>
         </div>
-        }
+    }
 </div>
 
 <style>
@@ -69,7 +101,7 @@
         transition: transform 0.2s;
     }
 
-        .hover-effect:hover {
-            transform: translateY(-5px);
-        }
+    .hover-effect:hover {
+        transform: translateY(-5px);
+    }
 </style>

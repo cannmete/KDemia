@@ -1,4 +1,9 @@
-﻿@model List<KDemia.Models.User>
+﻿@using Microsoft.AspNetCore.Identity
+@using KDemia.Models
+
+@inject UserManager<User> UserManager
+
+@model List<KDemia.Models.User>
 
 @{
     ViewData["Title"] = "Kullanıcı Listesi";
@@ -13,31 +18,40 @@
         <table class="table table-bordered table-striped mb-0">
             <thead>
                 <tr>
-                    <th>#</th>
-                    <th>Ad Soyad</th>
                     <th>Email</th>
+                    <th>Ad Soyad</th>
                     <th>Rol</th>
                     <th>Kayıt Tarihi</th>
+                    <th>İşlemler</th>
                 </tr>
             </thead>
             <tbody>
                 @foreach (var user in Model)
                 {
+                    // Her satırda kullanıcının rolünü soruyoruz
+                    var roles = await UserManager.GetRolesAsync(user);
+                    var userRole = roles.FirstOrDefault() ?? "User";
+
                     <tr>
-                        <td>@user.Id</td>
-                        <td>@user.FullName</td>
                         <td>@user.Email</td>
+                        <td>@user.FullName</td>
                         <td>
-                            @if (user.Role == "Admin")
+                            @if (userRole == "Admin")
                             {
-                                <span class="badge badge-warning">Yönetici</span>
+                                <span class="badge bg-danger">Yönetici</span>
                             }
                             else
                             {
-                                <span class="badge badge-info">Kullanıcı</span>
+                                <span class="badge bg-info text-dark">Kullanıcı</span>
                             }
                         </td>
                         <td>@user.CreatedDate.ToShortDateString()</td>
+
+                        <td>
+                            <a asp-action="Edit" asp-route-id="@user.Id" class="btn btn-sm btn-primary">
+                                <i class="fas fa-edit"></i> Düzenle
+                            </a>
+                        </td>
                     </tr>
                 }
             </tbody>

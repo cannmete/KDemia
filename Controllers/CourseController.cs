@@ -4,8 +4,9 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using KDemia.Models;
 using KDemia.Repositories;
 using KDemia.ViewModels;
+using Microsoft.AspNetCore.Identity; // EKLENDİ
 using System.Linq;
-using System;
+using System.Threading.Tasks; // Async için EKLENDİ
 
 namespace KDemia.Controllers
 {
@@ -14,24 +15,24 @@ namespace KDemia.Controllers
     {
         private readonly GenericRepository<Course> _courseRepo;
         private readonly GenericRepository<Category> _categoryRepo;
-        private readonly GenericRepository<User> _userRepo;
 
+        // Repository yerine UserManager kullanıyoruz (Daha güvenli ve Identity uyumlu)
+        private readonly UserManager<User> _userManager;
 
         public CourseController(
             GenericRepository<Course> courseRepo,
             GenericRepository<Category> categoryRepo,
-            GenericRepository<User> userRepo)
-
+            UserManager<User> userManager) // Değiştirildi
         {
             _courseRepo = courseRepo;
             _categoryRepo = categoryRepo;
-            _userRepo = userRepo;
-
+            _userManager = userManager;
         }
 
         // 1. LİSTELEME
         public IActionResult Index()
         {
+            // "User" ve "Category" tablolarını Join'liyoruz (Include)
             var courses = _courseRepo.GetAll("User", "Category");
             return View(courses);
         }
@@ -53,7 +54,7 @@ namespace KDemia.Controllers
             }
 
             ViewBag.Categories = _categoryRepo.GetAll()
-                .Where(x => x.IsActive == true)
+                .Where(x => x.IsActive == true) // Eğer IsActive property'si yoksa burayı sil
                 .Select(x => new SelectListItem
                 {
                     Text = x.Name,
@@ -75,7 +76,7 @@ namespace KDemia.Controllers
             {
                 Course = new Course(),
                 CategoryList = _categoryRepo.GetAll()
-                    .Where(x => x.IsActive == true)
+                    //.Where(x => x.IsActive == true) // Modelinde IsActive yoksa hata verir, varsa kalsın
                     .Select(x => new SelectListItem
                     {
                         Text = x.Name,
@@ -86,22 +87,28 @@ namespace KDemia.Controllers
             return View(model);
         }
 
-        // 3. CREATE POST
+        // 3. CREATE POST (ASYNC OLDU)
         [HttpPost]
-        public IActionResult Create(CourseViewModel model)
+        public async Task<IActionResult> Create(CourseViewModel model)
         {
             try
             {
+                // Validation kontrolü (Course nesnesi dolu mu?)
+                // Not: model.Course null gelemez ama içindeki propertyler boş gelebilir.
+                // ModelState.IsValid kontrolü yapmak daha iyidir ama senin yapına sadık kaldım.
+
                 if (model.Course != null)
                 {
-                    var userEmail = User.Identity.Name;
-                    var user = _userRepo.Get(x => x.Email == userEmail);
+                    // Identity'den o anki giriş yapmış kullanıcıyı buluyoruz
+                    var user = await _userManager.GetUserAsync(User);
 
                     if (user != null)
                     {
+                        // ID artık String olduğu için bu atama hatasız çalışır
                         model.Course.UserId = user.Id;
                     }
 
+                    // Entity Framework ilişkileri tekrar eklemeye çalışmasın diye null yapıyoruz
                     model.Course.Category = null;
                     model.Course.User = null;
 
@@ -114,8 +121,8 @@ namespace KDemia.Controllers
                 ModelState.AddModelError("", "Hata: " + ex.Message);
             }
 
+            // Hata olursa Dropdown'ı tekrar doldur
             model.CategoryList = _categoryRepo.GetAll()
-                .Where(x => x.IsActive == true)
                 .Select(x => new SelectListItem
                 {
                     Text = x.Name,
@@ -148,7 +155,6 @@ namespace KDemia.Controllers
             {
                 Course = course,
                 CategoryList = _categoryRepo.GetAll()
-                    .Where(x => x.IsActive == true)
                     .Select(x => new SelectListItem
                     {
                         Text = x.Name,
@@ -170,6 +176,8 @@ namespace KDemia.Controllers
 
                 if (existingCourse == null) return NotFound();
 
+                // Sadece değişmesi gereken alanları güncelliyoruz
+                // UserId'yi GÜNCELLEMİYORUZ (Kursun sahibi değişmemeli)
                 existingCourse.Title = model.Course.Title;
                 existingCourse.Price = model.Course.Price;
                 existingCourse.ShortDescription = model.Course.ShortDescription;
@@ -188,7 +196,6 @@ namespace KDemia.Controllers
                 ModelState.AddModelError("", "Hata: " + ex.Message);
 
                 model.CategoryList = _categoryRepo.GetAll()
-                    .Where(x => x.IsActive == true)
                     .Select(x => new SelectListItem
                     {
                         Text = x.Name,

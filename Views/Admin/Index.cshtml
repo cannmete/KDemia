@@ -115,3 +115,41 @@
         </section>
     </div>
 </div>
+
+@section Scripts {
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/6.0.1/signalr.js"></script>
+
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" rel="stylesheet" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+
+    <script>
+        $(document).ready(function () {
+
+            // 1. Bağlantıyı oluştur
+            var connection = new signalR.HubConnectionBuilder()
+                .withUrl("/notificationHub")
+                .build();
+
+            // 2. Bağlantıyı başlat
+            connection.start().then(function () {
+                console.log("SignalR Bağlantısı Başarılı!");
+            }).catch(function (err) {
+                return console.error(err.toString());
+            });
+
+            // 3. "ReceiveNotification" olayını dinle
+            connection.on("ReceiveNotification", function (message) {
+                // Toastr ile sağ üstte bildirim göster
+                toastr.info(message, "Yeni Bildirim", {
+                    "closeButton": true,
+                    "progressBar": true,
+                    "positionClass": "toast-top-right",
+                    "timeOut": "5000"
+                });
+
+                // İstersen burada sayfadaki "Toplam Yorum Sayısı"nı da AJAX ile güncelleyebilirsin
+                // Ama şimdilik sadece bildirim yeterli.
+            });
+        });
+    </script>
+}

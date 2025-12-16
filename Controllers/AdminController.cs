@@ -2,10 +2,11 @@
 using Microsoft.AspNetCore.Mvc;
 using KDemia.Models;
 using KDemia.Repositories;
+using Microsoft.AspNetCore.Identity;
 
 namespace KDemia.Controllers
 {
-    [Authorize(Roles="Admin")]
+    [Authorize(Roles = "Admin")]
     public class AdminController : Controller
     {
         // 1. DEĞİŞKENLER
@@ -13,18 +14,27 @@ namespace KDemia.Controllers
         private readonly GenericRepository<Course> _courseRepo;
         private readonly GenericRepository<Category> _categoryRepo;
 
+        private readonly UserManager<User> _userManager;
+        private readonly RoleManager<IdentityRole> _roleManager;
+
         // 2. CONSTRUCTOR 
-        public AdminController(GenericRepository<User> userRepo, GenericRepository<Category> categoryRepo, GenericRepository<Course> courseRepo)
+        public AdminController(
+            GenericRepository<User> userRepo,
+            GenericRepository<Category> categoryRepo,
+            GenericRepository<Course> courseRepo,
+            UserManager<User> userManager,         
+            RoleManager<IdentityRole> roleManager) 
         {
             _userRepo = userRepo;
             _categoryRepo = categoryRepo;
             _courseRepo = courseRepo;
+            _userManager = userManager;
+            _roleManager = roleManager;
         }
 
         // 3. DASHBOARD
         public IActionResult Index()
         {
-
             try
             {
                 var users = _userRepo.GetAll();
@@ -47,12 +57,10 @@ namespace KDemia.Controllers
         public IActionResult UserList()
         {
             var users = _userRepo.GetAll();
-            return View(users); // Views/Admin/UserList.cshtml'e gider.
+            return View(users);
         }
 
-
-
-        // 5. CONTROL PANEL
+        // 5. CONTROL PANEL (Kullanıcı Yönetimi)
         [HttpGet]
         public IActionResult ControlPanel()
         {
@@ -60,22 +68,34 @@ namespace KDemia.Controllers
             return View(users);
         }
 
-        // 6. ROL DEĞİŞTİRME
+        // 6. ROL DEĞİŞTİRME (EN ÖNEMLİ KISIM)
+        // ID artık int değil string!
         [HttpPost]
-        public IActionResult ChangeRole(int id, string role)
+        public async Task<IActionResult> ChangeRole(string id, string role)
         {
-            var user = _userRepo.Get(x => x.Id == id);
+            // 1. Kullanıcıyı bul
+            var user = await _userManager.FindByIdAsync(id);
 
             if (user != null)
             {
-                user.Role = role;
-                _userRepo.Update(user);
+                // 2. Mevcut rollerini al ve sil (Temizle)
+                var currentRoles = await _userManager.GetRolesAsync(user);
+                await _userManager.RemoveFromRolesAsync(user, currentRoles);
+
+                // 3. Rol veritabanında var mı kontrol et, yoksa oluştur (Otomatik)
+                if (!await _roleManager.RoleExistsAsync(role))
+                {
+                    await _roleManager.CreateAsync(new IdentityRole(role));
+                }
+
+                // 4. Yeni rolü ekle
+                await _userManager.AddToRoleAsync(user, role);
             }
+
             return RedirectToAction("ControlPanel");
         }
 
-
-        // 7. KATEGORİ SİLME (AJAX )
+        // 7. KATEGORİ SİLME (AJAX)
         [HttpPost]
         public IActionResult DeleteCategory(int id)
         {
@@ -87,13 +107,12 @@ namespace KDemia.Controllers
             return Json(new { success = true, message = "Silindi." });
         }
 
-        // EDIT TARAFI
+        // --- USER EDIT ---
 
-        // 1. DÜZENLEME SAYFASINI GETİR (GET)
         [HttpGet]
-        public IActionResult Edit(int id)
+        public async Task<IActionResult> Edit(string id) // ID -> String oldu
         {
-            var user = _userRepo.Get(x => x.Id == id);
+            var user = await _userManager.FindByIdAsync(id);
             if (user == null)
             {
                 return NotFound();
@@ -101,37 +120,32 @@ namespace KDemia.Controllers
             return View(user);
         }
 
-        // 2. DÜZENLEME İŞLEMİNİ KAYDET (POST)
         [HttpPost]
-        public IActionResult Edit(User user)
+        public async Task<IActionResult> Edit(User user)
         {
-            // Önce veritabanındaki "gerçek" kullanıcıyı bulalım
-            var existingUser = _userRepo.Get(x => x.Id == user.Id);
+            var existingUser = await _userManager.FindByIdAsync(user.Id);
 
             if (existingUser != null)
             {
-                // Sadece formdan gelen alanları güncelliyoruz
                 existingUser.FullName = user.FullName;
                 existingUser.Email = user.Email;
-                existingUser.Role = user.Role;
+                existingUser.UserName = user.Email; // UserName genelde Email ile aynı tutulur
 
-                // DİKKAT: Şifreye dokunmuyoruz, eski şifresi kalsın.
+                // Identity update işlemi
+                await _userManager.UpdateAsync(existingUser);
 
-                _userRepo.Update(existingUser);
-
-                // Başarılı olursa listeye dön
                 return RedirectToAction("ControlPanel");
             }
 
             return View(user);
         }
-        // DELETE TARAFI
 
-        // 1. SİLME ONAY SAYFASI (GET)
+        // --- USER DELETE ---
+
         [HttpGet]
-        public IActionResult Delete(int id)
+        public async Task<IActionResult> Delete(string id) // ID -> String oldu
         {
-            var user = _userRepo.Get(x => x.Id == id);
+            var user = await _userManager.FindByIdAsync(id);
             if (user == null)
             {
                 return NotFound();
@@ -139,16 +153,15 @@ namespace KDemia.Controllers
             return View(user);
         }
 
-        // 2.  SİL (POST)
-        // View'daki form "Delete" action'ına POST atıyor.
         [HttpPost, ActionName("Delete")]
-        public IActionResult DeleteConfirmed(int id)
+        public async Task<IActionResult> DeleteConfirmed(string id) // ID -> String oldu
         {
-            var user = _userRepo.Get(x => x.Id == id);
+            var user = await _userManager.FindByIdAsync(id);
 
             if (user != null)
             {
-                _userRepo.Delete(user);
+                // Repo yerine UserManager ile silmek daha güvenlidir (ilişkili verileri temizler)
+                await _userManager.DeleteAsync(user);
             }
             return RedirectToAction("ControlPanel");
         }

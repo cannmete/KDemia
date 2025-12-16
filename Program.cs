@@ -2,12 +2,13 @@ using KDemia;
 using KDemia.Data;
 using KDemia.Mapper;
 using KDemia.Repositories;
-using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.AspNetCore.Http.Features;
+using KDemia.Models;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.AddSignalR();
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
@@ -16,45 +17,55 @@ builder.Services.AddControllersWithViews();
 builder.Services.AddScoped(typeof(KDemia.Repositories.GenericRepository<>));
 
 // DB Connection
-
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 builder.Services.AddDbContext<KDemia.Data.AppDbContext>(options =>
     options.UseSqlServer(connectionString));
 
+// --- IDENTITY BAÞLANGIÇ ---
+builder.Services.AddIdentity<User, IdentityRole>(options =>
+{
+    // Þifre Kurallarý
+    options.Password.RequireDigit = true; // Sayý olsun
+    options.Password.RequiredLength = 4;  // En az 4 karakter
+    options.Password.RequireNonAlphanumeric = false; // Sembol zorunlu deðil (!,*, vs.)
+    options.Password.RequireUppercase = false; // Büyük harf zorunlu deðil
+    options.Password.RequireLowercase = false; // Küçük harf zorunlu deðil
+})
+.AddEntityFrameworkStores<AppDbContext>()
+.AddDefaultTokenProviders();
+
+// Cookie Ayarlarý
+builder.Services.ConfigureApplicationCookie(options =>
+{
+    options.LoginPath = "/Auth/Login";
+    options.AccessDeniedPath = "/Auth/AccessDenied";
+    options.ExpireTimeSpan = TimeSpan.FromMinutes(60);
+});
+// --- IDENTITY BÝTÝÞ ---
+
+
 // AutoMapper Ayarý
 builder.Services.AddAutoMapper(typeof(UserProfile));
 
-// Cooike Aktive etmek için
-builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
-    .AddCookie(options =>
-    {
-        options.LoginPath = "/Auth/Login";                 
-        options.AccessDeniedPath = "/Auth/AccessDenied";    
-        options.ExpireTimeSpan = TimeSpan.FromMinutes(60); // 60 dakika login süresi
-    });
-
 var app = builder.Build();
-
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");
-    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
 }
 
 app.UseHttpsRedirection();
+app.UseStaticFiles();
+
 app.UseRouting();
-app.UseAuthentication(); // Kimlik 
+
+app.UseAuthentication(); // Kimlik  
 app.UseAuthorization();  // Yetki
-
-app.MapStaticAssets();
-
+app.MapHub<KDemia.Hubs.NotificationHub>("/notificationHub");
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller=Auth}/{action=Login}/{id?}")
-    .WithStaticAssets();
-
+    pattern: "{controller=Auth}/{action=Login}/{id?}");
 
 app.Run();

@@ -1,1 +1,18 @@
-/* Add here all your CSS customizations */
+/* Navbar'ý en üste çýkar */
+.user-header {
+    position: relative;
+    z-index: 1050; /* Bootstrap modal seviyesine yakýn yüksek bir deðer */
+}
+
+/* Dropdown menünün kesinlikle üstte görünmesini saðla */
+.dropdown-menu {
+    z-index: 1060 !important;
+}
+
+/* Fiyat kartýnýn sticky özelliði */
+.sticky-sidebar {
+    position: -webkit-sticky; /* Safari */
+    position: sticky;
+    top: 20px; /* Tavandan 20px boþluk býrakarak yapýþýr */
+    z-index: 900; /* Navbar'dan (1050) düþük olmalý ki menü üstüne açýlabilsin */
+}

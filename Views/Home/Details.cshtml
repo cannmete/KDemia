@@ -4,64 +4,240 @@
     ViewData["Title"] = Model.Title;
     Layout = "~/Views/Shared/_Layout.cshtml";
 
+    // Ortalama Puan Hesaplama
+    double averageScore = 0;
+    if (Model.Reviews != null && Model.Reviews.Count > 0)
+    {
+        averageScore = Model.Reviews.Average(x => x.Rating);
+    }
 }
 
-<div class="container mt-5">
+<div class="container mt-5 mb-5">
     <div class="row">
+
         <div class="col-lg-8">
-            <div class="card mb-4">
+
+            <div class="card mb-4 border-0">
                 <div class="card-body p-0">
                     @if (!string.IsNullOrEmpty(Model.VideoUrl))
                     {
-                        <div class="ratio ratio-16x9">
+                        <div class="ratio ratio-16x9 rounded overflow-hidden shadow-sm">
                             <iframe src="@Model.VideoUrl.Replace("watch?v=", "embed/")" title="Eğitim Videosu" allowfullscreen></iframe>
                         </div>
                     }
                     else
                     {
-                        <div class="p-5 text-center bg-light">
-                            <i class="fas fa-video-slash fa-3x text-muted"></i>
-                            <p class="mt-2">Bu eğitim için önizleme videosu yok.</p>
+                        <div class="p-5 text-center bg-light rounded shadow-sm" style="min-height: 300px; display:flex; flex-direction:column; justify-content:center;">
+                            <i class="fas fa-video-slash fa-3x text-muted mb-3"></i>
+                            <p class="text-muted">Bu eğitim için önizleme videosu yok.</p>
                         </div>
                     }
                 </div>
             </div>
 
-            <h3>@Model.Title</h3>
-            <p class="text-muted">
-                <span class="badge bg-secondary">@Model.Category?.Name</span>
-                <span class="mx-2">|</span>
-                <i class="fas fa-user"></i> Eğitmen: @(Model.User?.FullName ?? "Bilinmiyor")
-            </p>
-            <hr />
+            <div class="mb-4">
+                <h1 class="fw-bold">@Model.Title</h1>
+                <div class="d-flex align-items-center text-muted mb-3">
+                    <span class="badge bg-primary me-2">@Model.Category?.Name</span>
+                    <span class="me-3">|</span>
+                    <i class="fas fa-user me-1"></i> Eğitmen: @(Model.User?.FullName ?? "Bilinmiyor")
+                </div>
 
-            <h5>Eğitim Hakkında</h5>
-            <p>@Model.DetailContent</p>
+                <h4 class="mt-4">Eğitim Hakkında</h4>
+                <p class="lead" style="font-size: 1rem; line-height: 1.7;">@Model.DetailContent</p>
+            </div>
+
+            <hr class="my-5" />
+
+            <div id="reviews-section">
+                <div class="d-flex align-items-center justify-content-between mb-4">
+                    <h3 class="fw-bold mb-0">Yorumlar</h3>
+                    <div class="d-flex align-items-center">
+                        <div class="bg-warning text-dark px-3 py-2 rounded d-flex align-items-center">
+                            <span class="fw-bold h4 mb-0 me-2">@averageScore.ToString("0.0")</span>
+                            <div class="d-flex flex-column">
+                                <span class="small text-uppercase fw-bold" style="font-size: 0.7rem; line-height: 1;">Ortalama</span>
+                                <span class="small">/ 5</span>
+                            </div>
+                        </div>
+                        <span class="text-muted ms-2">(@(Model.Reviews?.Count ?? 0) değerlendirme)</span>
+                    </div>
+                </div>
+
+                @if (User.Identity.IsAuthenticated)
+                {
+                    <div class="card mb-5 bg-light border-0 shadow-sm">
+                        <div class="card-body p-4">
+                            <h5 class="card-title fw-bold mb-3">Bu eğitimi değerlendir</h5>
+                            <form asp-action="AddReview" method="post">
+                                <input type="hidden" name="courseId" value="@Model.Id" />
+
+                                <div class="rating-css mb-3">
+                                    <div class="star-icon">
+                                        <input type="radio" name="rating" value="1" id="rating1">
+                                        <label for="rating1" class="fa fa-star"></label>
+                                        <input type="radio" name="rating" value="2" id="rating2">
+                                        <label for="rating2" class="fa fa-star"></label>
+                                        <input type="radio" name="rating" value="3" id="rating3">
+                                        <label for="rating3" class="fa fa-star"></label>
+                                        <input type="radio" name="rating" value="4" id="rating4">
+                                        <label for="rating4" class="fa fa-star"></label>
+                                        <input type="radio" name="rating" value="5" id="rating5" checked>
+                                        <label for="rating5" class="fa fa-star"></label>
+                                    </div>
+                                </div>
+
+                                <div class="form-group mb-3">
+                                    <textarea name="comment" class="form-control border-0 shadow-sm" rows="3" placeholder="Deneyimlerinizi paylaşın..." style="resize: none;" required></textarea>
+                                </div>
+                                <div class="text-end">
+                                    <button type="submit" class="btn btn-primary px-4">Yorumu Gönder</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                }
+                else
+                {
+                    <div class="alert alert-light border shadow-sm mb-5 text-center">
+                        <i class="fas fa-lock me-2"></i> Yorum yapmak için <a asp-controller="Auth" asp-action="Login" class="fw-bold">giriş yapmalısınız.</a>
+                    </div>
+                }
+
+                @if (Model.Reviews != null && Model.Reviews.Count > 0)
+                {
+                    <div class="review-list">
+                        @foreach (var review in Model.Reviews.OrderByDescending(x => x.CreatedDate))
+                        {
+                            <div class="d-flex mb-4 pb-4 border-bottom position-relative">
+                                @if (User.IsInRole("Admin"))
+                                {
+                                    <div class="position-absolute top-0 end-0">
+                                        <form asp-action="DeleteReview" method="post">
+                                            <input type="hidden" name="id" value="@review.Id" />
+                                            <button type="submit" class="btn btn-sm btn-outline-danger border-0"
+                                                    onclick="return confirm('Bu yorumu silmek istediğinize emin misiniz?');"
+                                                    title="Yorumu Sil">
+                                                <i class="fas fa-trash-alt"></i>
+                                            </button>
+                                        </form>
+                                    </div>
+                                }
+                                <div class="flex-shrink-0">
+                                    <div class="bg-secondary text-white rounded-circle d-flex justify-content-center align-items-center" style="width: 50px; height: 50px; font-size: 1.2rem;">
+                                        @(review.User?.UserName?.Substring(0, 1).ToUpper() ?? "U")
+                                    </div>
+                                </div>
+                                <div class="flex-grow-1 ms-3 pe-4">
+                                    <div class="d-flex justify-content-between align-items-center mb-1">
+                                        <h6 class="fw-bold mb-0">@(review.User?.FullName ?? "Kullanıcı")</h6>
+
+                                        <div class="text-warning small me-4">
+                                            @for (int i = 0; i < review.Rating; i++)
+                                            {
+                                                <i class="fas fa-star"></i>
+                                            }
+                                            @for (int i = review.Rating; i < 5; i++)
+                                            {
+                                                <i class="far fa-star text-muted"></i>
+                                            }
+                                        </div>
+                                    </div>
+                                    <p class="text-muted small mb-2">@review.CreatedDate.ToShortDateString()</p>
+                                    <p class="mb-0 text-dark">@review.Comment</p>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                }
+                else
+                {
+                    <div class="text-center py-4 text-muted">
+                        <i class="far fa-comment-dots fa-3x mb-3"></i>
+                        <p>Henüz yorum yapılmamış. İlk yorumu sen yap!</p>
+                    </div>
+                }
+            </div>
         </div>
 
         <div class="col-lg-4">
-            <div class="card shadow-sm sticky-top" style="top: 20px;">
-                <div class="card-body">
-                    <h2 class="text-primary font-weight-bold">@Model.Price.ToString("C2")</h2>
-                    <p class="text-muted">Ömür boyu erişim</p>
+            <div class="card shadow-sm border-0 sticky-sidebar">
+                <div class="card-body p-4">
+                    <h1 class="text-primary fw-bold mb-0">@Model.Price.ToString("C2")</h1>
+                    <p class="text-muted small mb-4">Ömür boyu erişim</p>
 
-                    <div class="d-grid gap-2">
-                        <button class="btn btn-success btn-lg btn-block">
-                            <i class="fas fa-cart-plus"></i> Hemen Satın Al
-                        </button>
-                        <button class="btn btn-outline-secondary btn-block">
-                            <i class="far fa-heart"></i> İstek Listesine Ekle
-                        </button>
+                    <div class="d-grid gap-2 mb-4">
+                        @if (User.Identity.IsAuthenticated)
+                        {
+                            <button class="btn btn-success btn-lg fw-bold">
+                                <i class="fas fa-shopping-cart me-2"></i> Hemen Satın Al
+                            </button>
+                            <button class="btn btn-outline-secondary">
+                                <i class="far fa-heart me-2"></i> İstek Listesine Ekle
+                            </button>
+                        }
+                        else
+                        {
+                            <a asp-controller="Auth" asp-action="Login" class="btn btn-primary btn-lg">
+                                Satın Almak İçin Giriş Yap
+                            </a>
+                        }
                     </div>
 
-                    <hr />
-                    <ul class="list-unstyled small text-muted">
-                        <li class="mb-2"><i class="fas fa-check text-success"></i> Sertifika dahil</li>
-                        <li class="mb-2"><i class="fas fa-check text-success"></i> Mobil ve TV erişimi</li>
-                        <li class="mb-2"><i class="fas fa-check text-success"></i> Kaynak dosyalar</li>
+                    <ul class="list-unstyled text-muted small mb-0">
+                        <li class="mb-2"><i class="fas fa-check text-success me-2"></i> Sertifika dahil</li>
+                        <li class="mb-2"><i class="fas fa-mobile-alt text-success me-2"></i> Mobil ve TV uyumlu</li>
+                        <li class="mb-2"><i class="fas fa-file-download text-success me-2"></i> Kaynak dosyalar</li>
+                        <li class="mb-2"><i class="fas fa-infinity text-success me-2"></i> Sınırsız Erişim</li>
                     </ul>
                 </div>
             </div>
         </div>
+
     </div>
 </div>
+
+<style>
+    /* Yıldız Puanlama */
+    .rating-css div {
+        color: #ffe400;
+        font-size: 20px;
+        font-family: sans-serif;
+        font-weight: 800;
+        text-transform: uppercase;
+        padding: 10px 0;
+    }
+
+    .rating-css input {
+        display: none;
+    }
+
+        .rating-css input + label {
+            font-size: 24px;
+            text-shadow: 1px 1px 0 #8f8420;
+            cursor: pointer;
+            transition: 0.2s all;
+        }
+
+        .rating-css input:checked + label ~ label {
+            color: #b4b4b4;
+        }
+
+    .rating-css label:active {
+        transform: scale(0.8);
+    }
+
+    .star-icon {
+        direction: rtl;
+        unicode-bidi: bidi-override;
+        text-align: left;
+    }
+
+    /* Layout Düzeltmeleri */
+    .sticky-sidebar {
+        position: -webkit-sticky;
+        position: sticky;
+        top: 20px;
+        z-index: 900; /* Navbar'ın altında kalması için */
+    }
+</style>

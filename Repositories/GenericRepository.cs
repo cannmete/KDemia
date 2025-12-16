@@ -18,9 +18,6 @@ namespace KDemia.Repositories
             _object = _context.Set<T>();
         }
 
-        
-        
-        
         public List<T> GetAll(params string[] includes)
         {
             var query = _object.AsQueryable();
@@ -35,9 +32,7 @@ namespace KDemia.Repositories
 
             return query.ToList();
         }
-        
-
-        
+              
         public List<T> GetAll(Expression<Func<T, bool>> filter)
         {
             return _object.Where(filter).ToList();

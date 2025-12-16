@@ -1,4 +1,10 @@
-﻿@model List<User>
+﻿@using Microsoft.AspNetCore.Identity
+@using KDemia.Models
+
+@* UserManager'ı sayfaya dahil ediyoruz ki rollerini sorabilelim *@
+@inject UserManager<User> UserManager
+
+@model List<User>
 @{
     Layout = "_AdminLayout";
     ViewData["Title"] = "Kullanıcı Yönetimi";
@@ -8,34 +14,51 @@
     <h2>Kullanıcı Yönetimi</h2>
 </header>
 
-<table class="table table-bordered">
-    <thead>
+<table class="table table-bordered table-striped">
+    <thead class="thead-dark">
         <tr>
-            <th>Adı</th>
+            <th>Adı Soyadı</th>
             <th>Email</th>
-            <th>Rol</th>
+            <th>Mevcut Rol</th>
+            <th>Rol Değiştir</th>
             <th>İşlemler</th>
         </tr>
     </thead>
     <tbody>
         @foreach (var user in Model)
         {
+            // Her satırda veritabanına soruyoruz: "Bu arkadaşın rolü ne?"
+            // Not: Çok fazla kullanıcı varsa bu yöntem biraz yavaş çalışabilir ama admin paneli için sorun olmaz.
+            var roles = await UserManager.GetRolesAsync(user);
+            var userRole = roles.FirstOrDefault() ?? "User"; // Rolü yoksa 'User' varsay
+
             <tr>
                 <td>@user.FullName</td>
                 <td>@user.Email</td>
                 <td>
+                    <span class="badge @(userRole == "Admin" ? "bg-danger" : "bg-primary")">
+                        @userRole
+                    </span>
+                </td>
+                <td>
                     <form asp-action="ChangeRole" method="post" class="d-flex align-items-center">
                         <input type="hidden" name="id" value="@user.Id" />
-                        <select name="role" class="form-select form-select-sm me-1">
-                            <option value="User" selected="@(user.Role == "User")">User</option>
-                            <option value="Admin" selected="@(user.Role == "Admin")">Admin</option>
+
+                        <select name="role" class="form-select form-select-sm me-1" style="width:auto;">
+                            <!option value="User" @(userRole == "User" ? "selected" : "")>User</!option>
+                            <!option value="Admin" @(userRole == "Admin" ? "selected" : "")>Admin</!option>
                         </select>
+
                         <button type="submit" class="btn btn-sm btn-success">Kaydet</button>
                     </form>
                 </td>
                 <td>
                     <a asp-action="Edit" asp-route-id="@user.Id" class="btn btn-warning btn-sm">Düzenle</a>
-                    <a asp-action="Delete" asp-route-id="@user.Id" class="btn btn-danger btn-sm">Sil</a>
+
+                    <form asp-action="Delete" method="post" style="display:inline;">
+                        <input type="hidden" name="id" value="@user.Id" />
+                        <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Bu kullanıcıyı silmek istediğinize emin misiniz?');">Sil</button>
+                    </form>
                 </td>
             </tr>
         }

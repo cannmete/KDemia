@@ -11,7 +11,6 @@
     <link rel="stylesheet" href="~/portoadmin/css/custom.css" />
 
     <style>
-        /* Kullanıcı arayüzü için özel küçük düzeltmeler */
         body {
             background-color: #f6f7f9;
         }
@@ -67,7 +66,7 @@
                         @if (User.IsInRole("Admin"))
                         {
                             <li class="nav-item">
-                                <a class="btn btn-sm btn-danger text-white ml-3" asp-controller="Course" asp-action="Index">
+                                <a class="btn btn-sm btn-danger text-white ml-3" asp-controller="Admin" asp-action="Index">
                                     <i class="fas fa-cogs"></i> Yönetim Paneli
                                 </a>
                             </li>
@@ -75,14 +74,18 @@
 
                         @if (User.Identity.IsAuthenticated)
                         {
+                            // Login olurken eklediğimiz "FullName" claim'ini çekmeye çalışıyoruz.
+                            // Bulamazsa varsayılan olarak User.Identity.Name (Email) gösterir.
+                            var userDisplayName = User.FindFirst("FullName")?.Value ?? User.Identity.Name;
+
                             <li class="nav-item dropdown ms-3">
                                 <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown">
-                                    <i class="fas fa-user-circle fa-lg"></i> @User.Identity.Name
+                                    <i class="fas fa-user-circle fa-lg"></i> @userDisplayName
                                 </a>
                                 <div class="dropdown-menu dropdown-menu-end">
-                                    <a class="dropdown-item" href="#">Profilim</a>
+                                    <a class="dropdown-item" asp-controller="Home" asp-action="Index">Profilim</a>
                                     <div class="dropdown-divider"></div>
-                                    <a class="dropdown-item text-danger" href="/Auth/Logout">
+                                    <a class="dropdown-item text-danger" asp-controller="Auth" asp-action="Logout">
                                         <i class="fas fa-power-off"></i> Çıkış Yap
                                     </a>
                                 </div>
@@ -97,7 +100,6 @@
                                 <a class="btn btn-primary btn-sm px-4" asp-controller="Auth" asp-action="Register">Kayıt Ol</a>
                             </li>
                         }
-
                     </ul>
                 </div>
             </nav>

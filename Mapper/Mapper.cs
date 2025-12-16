@@ -9,11 +9,9 @@ namespace KDemia.Mapper
     {
         public UserProfile()
         {
-            // ViewModel'den User entity'sine dönüşüm.
-
-            CreateMap<RegisterViewModel, User>()
-                .ForMember(dest => dest.PasswordHash, opt => opt.Ignore())
-                .ForMember(dest => dest.Salt, opt => opt.Ignore());
+            CreateMap<RegisterViewModel, User>();
+                //.ForMember(dest => dest.PasswordHash, opt => opt.Ignore())
+                //.ForMember(dest => dest.Salt, opt => opt.Ignore());
         }
     }
 }
