@@ -2,69 +2,157 @@
 
 @{
     ViewData["Title"] = "Giriş Yap";
-    Layout = null;
+    Layout = null; // Layout kullanmıyoruz, tam sayfa tasarım yapacağız
 }
 
 <!DOCTYPE html>
-<html>
+<html lang="tr">
 <head>
-    <meta name="viewport" content="width=device-width" />
-    <title>Giriş - KDemia</title>
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Giriş Yap - KDemia</title>
+    <link rel="stylesheet" href="~/portoadmin/vendor/bootstrap/css/bootstrap.css" />
+    <link rel="stylesheet" href="~/portoadmin/vendor/font-awesome/css/all.min.css" />
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
 
     <style>
         body {
-            background-color: #ededed;
+            font-family: 'Inter', sans-serif;
+            background-color: #fff;
+            overflow-x: hidden;
         }
 
-        .center-sign {
-            max-width: 400px;
-            margin: 10% auto;
-            padding: 20px;
-            background: #fff;
-            border-top: 5px solid #0088cc;
-            border-radius: 5px;
-            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        .login-container {
+            min-height: 100vh;
+        }
+
+        /* Sol Taraf (Form) */
+        .login-form-side {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: 50px;
+        }
+
+        /* Sağ Taraf (Görsel) */
+        .login-image-side {
+            background: linear-gradient(135deg, #2b5876 0%, #4e4376 100%), url('https://images.unsplash.com/photo-1517694712202-14dd9538aa97?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80');
+            background-blend-mode: multiply;
+            background-size: cover;
+            background-position: center;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 40px;
+        }
+
+        .form-control {
+            height: 50px;
+            border-radius: 8px;
+            border: 1px solid #e0e0e0;
+            padding-left: 15px;
+            background-color: #f8f9fa;
+        }
+
+            .form-control:focus {
+                border-color: #4e4376;
+                box-shadow: 0 0 0 0.2rem rgba(78, 67, 118, 0.25);
+                background-color: #fff;
+            }
+
+        .btn-custom {
+            height: 50px;
+            border-radius: 8px;
+            background: #4e4376;
+            color: #fff;
+            font-weight: 600;
+            border: none;
+            transition: 0.3s;
+        }
+
+            .btn-custom:hover {
+                background: #2b5876;
+                transform: translateY(-2px);
+                box-shadow: 0 5px 15px rgba(43, 88, 118, 0.4);
+            }
+
+        .brand-logo {
+            font-size: 24px;
+            font-weight: 700;
+            color: #4e4376;
+            margin-bottom: 30px;
+            display: inline-block;
+            text-decoration: none;
         }
     </style>
 </head>
 <body>
 
-    <div class="center-sign">
-        <h3 class="text-center mb-4">KDemia Giriş</h3>
+    <div class="container-fluid login-container">
+        <div class="row h-100">
 
-        <form asp-action="Login" method="post">
+            <div class="col-md-6 col-lg-5 login-form-side bg-white">
+                <div class="w-100 mx-auto" style="max-width: 400px;">
+                    <a href="/" class="brand-logo"><i class="fas fa-cube me-2"></i>KDemia</a>
 
-            <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+                    <h2 class="fw-bold mb-2">Tekrar Hoş Geldiniz!</h2>
+                    <p class="text-muted mb-4">Öğrenme yolculuğunuza kaldığınız yerden devam edin.</p>
 
-            <div class="form-group">
-                <label>E-Posta</label>
-                <input asp-for="Email" class="form-control" />
-            </div>
+                    <form asp-action="Login" method="post">
+                        <div asp-validation-summary="ModelOnly" class="alert alert-danger mb-3 py-2 small"></div>
 
-            <div class="form-group">
-                <label>Şifre</label>
-                <input asp-for="Password" class="form-control" type="password" />
-            </div>
-            <div class="form-group mb-3">
-                <div class="form-check">
-                    <input class="form-check-input" type="checkbox" asp-for="KeepMe" id="keepMeCheck">
-                    <label class="form-check-label" for="keepMeCheck">
-                        Beni Hatırla
-                    </label>
+                        <div class="mb-3">
+                            <label class="form-label fw-bold small text-muted">E-POSTA ADRESİ</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light border-end-0"><i class="fas fa-envelope text-muted"></i></span>
+                                <input asp-for="Email" class="form-control border-start-0 ps-0" placeholder="ornek@mail.com" />
+                            </div>
+                            <span asp-validation-for="Email" class="text-danger small"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-bold small text-muted">ŞİFRE</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light border-end-0"><i class="fas fa-lock text-muted"></i></span>
+                                <input asp-for="Password" type="password" class="form-control border-start-0 ps-0" placeholder="••••••••" />
+                            </div>
+                            <span asp-validation-for="Password" class="text-danger small"></span>
+                        </div>
+
+                        <div class="d-flex justify-content-between align-items-center mb-4">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" asp-for="KeepMe" id="rememberMe">
+                                <label class="form-check-label small" for="rememberMe">Beni Hatırla</label>
+                            </div>
+                            <a asp-action="ForgotPassword">Şifremi Unuttum</a>
+                        </div>
+
+                        <div class="d-grid mb-4">
+                            <button type="submit" class="btn btn-custom btn-block">Giriş Yap</button>
+                        </div>
+
+                        <p class="text-center text-muted small">
+                            Hesabınız yok mu? <a asp-action="Register" class="fw-bold text-primary text-decoration-none">Hemen Kayıt Ol</a>
+                        </p>
+                    </form>
                 </div>
             </div>
 
-            <div class="row mt-4">
-                <div class="col-6">
-                    <button type="submit" class="btn btn-primary btn-block">Giriş Yap</button>
-                </div>
-                <div class="col-6">
-                    <a asp-action="Register" class="btn btn-light btn-block">Kayıt Ol</a>
+            <div class="col-md-6 col-lg-7 d-none d-md-flex login-image-side">
+                <div class="text-content">
+                    <h1 class="display-4 fw-bold mb-3">Geleceğini Kodla</h1>
+                    <p class="lead mb-4 opacity-75">En güncel teknolojilerle kariyerine yön ver. <br>Topluluğumuza katıl ve öğrenmeye başla.</p>
                 </div>
             </div>
-        </form>
+
+        </div>
     </div>
 
+    <script src="~/portoadmin/vendor/jquery/jquery.js"></script>
+    <script src="~/portoadmin/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

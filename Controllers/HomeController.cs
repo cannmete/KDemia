@@ -18,12 +18,14 @@ namespace KDemia.Controllers
         private readonly GenericRepository<CourseReview> _reviewRepo;
         private readonly IHubContext<NotificationHub> _hubContext;
         private readonly GenericRepository<User> _userRepo;
+        private readonly GenericRepository<Wishlist> _wishlistRepo;
 
         public HomeController(
             GenericRepository<Course> courseRepo,
             GenericRepository<Category> categoryRepo,
             GenericRepository<User> userRepo,
-            GenericRepository<CourseReview> reviewRepo, IHubContext<NotificationHub> hubContext)
+            GenericRepository<CourseReview> reviewRepo, IHubContext<NotificationHub> hubContext,
+            GenericRepository<Wishlist> wishlistRepo)
 
         {
             _courseRepo = courseRepo;
@@ -31,6 +33,7 @@ namespace KDemia.Controllers
             _userRepo = userRepo;
             _reviewRepo = reviewRepo;
             _hubContext = hubContext;
+            _wishlistRepo = wishlistRepo;
         }
 
         // 1. Home/Index
@@ -93,6 +96,17 @@ namespace KDemia.Controllers
                                         .OrderByDescending(x => x.CreatedDate) // En yeni yorum en üstte görünsün
                                         .ToList();
 
+            bool isInWishlist = false;
+            if (User.Identity.IsAuthenticated)
+            {
+                var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+                // Kullanýcý bu kursu eklemiþ mi kontrol et
+                var wishlistItem = _wishlistRepo.GetAll()
+                                                .FirstOrDefault(x => x.UserId == userId && x.CourseId == id);
+                isInWishlist = wishlistItem != null;
+            }
+
+            ViewBag.IsInWishlist = isInWishlist;
             return View(course);
 
         }

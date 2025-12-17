@@ -11,7 +11,7 @@ namespace KDemia.Data
         public DbSet<Category> Categories { get; set; }
         public DbSet<Course> Courses { get; set; }
         public DbSet<CourseReview> CourseReviews { get; set; }
-
+        public DbSet<Wishlist> Wishlists { get; set; }
         public DbSet<CourseEnrollment> CourseEnrollments { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
@@ -50,6 +50,18 @@ namespace KDemia.Data
                 .HasOne(e => e.Course)
                 .WithMany()
                 .HasForeignKey(e => e.CourseId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            builder.Entity<Wishlist>()
+                .HasOne(w => w.User)
+                .WithMany()
+                .HasForeignKey(w => w.UserId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            builder.Entity<Wishlist>()
+                .HasOne(w => w.Course)
+                .WithMany()
+                .HasForeignKey(w => w.CourseId)
                 .OnDelete(DeleteBehavior.Restrict);
         }
     }

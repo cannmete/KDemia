@@ -5,103 +5,166 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<div class="jumbotron p-4 p-md-5 text-white rounded bg-dark mb-4" style="background: linear-gradient(to right, #2b5876, #4e4376);">
-    <div class="col-md-6 px-0">
-        <h1 class="display-4 font-italic">Geleceğini Kodla</h1>
-        <p class="lead my-3">En güncel yazılım ve teknoloji eğitimleriyle kariyerine yön ver.</p>
+<div class="hero-section text-white text-center d-flex align-items-center justify-content-center mb-5" style="background: linear-gradient(135deg, #0f2027 0%, #203a43 50%, #2c5364 100%); min-height: 400px; border-radius: 0 0 50px 50px;">
+    <div class="container">
+        <h1 class="display-3 fw-bold mb-3">Dünyanı Keşfet</h1>
+        <p class="lead mb-4 opacity-75">Sıfırdan uzmanlığa giden yolda en iyi kaynaklarla öğrenmeye başla.</p>
+
+        <div class="d-flex justify-content-center gap-3">
+            @if (!User.Identity.IsAuthenticated)
+            {
+                <a asp-controller="Auth" asp-action="Register" class="btn btn-light btn-lg px-5 fw-bold text-primary rounded-pill shadow">Ücretsiz Başla</a>
+            }
+            <a href="#courses-area" class="btn btn-outline-light btn-lg px-5 fw-bold rounded-pill">Eğitimleri İncele</a>
+        </div>
     </div>
 </div>
 
-<div class="row mb-4">
-    <div class="col-md-12">
-        <form method="get" class="d-flex gap-2">
-            <input type="text" name="search" class="form-control" placeholder="Eğitim ara..." value="@ViewBag.CurrentSearch">
-            <select name="categoryId" class="form-control w-25" asp-items="ViewBag.Categories">
-                <option value="">Tüm Kategoriler</option>
-            </select>
-            <button class="btn btn-primary" type="submit">Ara</button>
-        </form>
-    </div>
-</div>
+<div class="container mb-5" id="courses-area">
 
-<div class="row">
+    <div class="row justify-content-center mb-5" style="margin-top: -35px; position: relative; z-index: 10;">
+        <div class="col-md-10 col-lg-8">
+            <div class="card shadow-lg border-0 rounded-pill overflow-hidden">
+                <div class="card-body p-0">
+                    <form method="get" action="/Home/Index#courses-area" class="d-flex align-items-center">
+
+                        <div class="input-group flex-grow-1">
+                            <span class="input-group-text bg-white border-0 ps-4 py-3">
+                                <i class="fas fa-search text-muted"></i>
+                            </span>
+                            <input type="text" name="search"
+                                   class="form-control border-0 shadow-none py-3"
+                                   placeholder="Ne öğrenmek istersiniz? (Örn: C#, React)"
+                                   value="@ViewBag.CurrentSearch"
+                                   style="font-size: 1rem;">
+                        </div>
+
+                        <div class="vr my-2 text-muted" style="height: 30px; width: 1px; opacity: 0.2;"></div>
+
+                        <div class="px-2" style="min-width: 150px; max-width: 200px;">
+                            <select name="categoryId" class="form-select border-0 shadow-none text-muted fw-bold"
+                                    asp-items="ViewBag.Categories"
+                                    style="cursor:pointer; background-color: transparent;"
+                                    onchange="this.form.submit()">
+                                <option value="">Tüm Kategoriler</option>
+                            </select>
+                        </div>
+
+                        <div class="pe-1 py-1">
+                            <button class="btn btn-primary rounded-pill px-4 py-2 fw-bold shadow-sm" type="submit" style="min-width: 100px;">
+                                Ara
+                            </button>
+                        </div>
+
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
     @if (Model.Count == 0)
     {
-        <div class="col-12 text-center mt-5">
-            <h3>Aradığınız kriterlere uygun eğitim bulunamadı.</h3>
+        <div class="text-center py-5">
+            <img src="https://cdn-icons-png.flaticon.com/512/7486/7486754.png" width="150" class="mb-3 opacity-50" />
+            <h3 class="text-muted">Aradığınız kriterlere uygun eğitim bulunamadı.</h3>
+            <a href="/Home/Index" class="btn btn-outline-primary mt-3">Filtreleri Temizle</a>
         </div>
     }
 
-    @foreach (var item in Model)
-    {
-       
+    <div class="row">
+        @foreach (var item in Model)
+        {
+            // Puanlama Mantığı
             double avgScore = 0;
             if (item.Reviews != null && item.Reviews.Count > 0)
             {
                 avgScore = item.Reviews.Average(x => x.Rating);
             }
-            // Yuvarlama yapabiliriz (örn: 4.5 üstü 5 görünsün gibi) veya direkt alabiliriz.
-            // Gösterim için tam sayıya yuvarlıyorum:
-            int fullStars = (int)Math.Round(avgScore); 
-        
+            int reviewCount = item.Reviews?.Count ?? 0;
 
-        <div class="col-md-4 mb-4">
-            <div class="card h-100 shadow-sm border-0 hover-effect">
-                <div style="height: 200px; background-color: #eee; display:flex; align-items:center; justify-content:center; overflow:hidden;">
-                    <span class="badge bg-primary position-absolute top-0 end-0 m-2">@item.Category?.Name</span>
-                    <i class="fas fa-code fa-4x text-muted"></i>
-                </div>
+            <div class="col-md-4 mb-4">
+                <a asp-controller="Home" asp-action="Details" asp-route-id="@item.Id" class="text-decoration-none text-dark">
+                    <div class="card h-100 border-0 shadow-sm course-card">
 
-                <div class="card-body d-flex flex-column">
-                    <h5 class="card-title text-dark mb-1">@item.Title</h5>
-                    
-                    <div class="mb-2">
-                        @if (avgScore > 0)
-                        {
-                            <div class="text-warning small" title="Ortalama Puan: @avgScore.ToString("0.0")">
-                                @for (int i = 0; i < fullStars; i++)
-                                {
-                                    <i class="fas fa-star"></i>
-                                }
-                                @for (int i = fullStars; i < 5; i++)
-                                {
-                                    <i class="far fa-star text-muted"></i>
-                                }
-                                <span class="text-muted ms-1" style="font-size: 0.8rem;">(@item.Reviews.Count)</span>
+                        <div class="position-relative overflow-hidden rounded-top" style="height: 200px; background: #eee;">
+                            @if (string.IsNullOrEmpty(item.VideoUrl))
+                            {
+                                <div class="w-100 h-100 d-flex align-items-center justify-content-center bg-light text-muted">
+                                    <i class="fas fa-code fa-3x"></i>
+                                </div>
+                            }
+                            else
+                            {
+                                <img src="https://img.youtube.com/vi/@item.VideoUrl.Replace("https://www.youtube.com/watch?v=", "")/mqdefault.jpg" class="w-100 h-100" style="object-fit:cover;" />
+                            }
+
+                            <span class="badge bg-white text-primary fw-bold position-absolute top-0 start-0 m-3 shadow-sm px-3 py-2 rounded-pill">
+                                @item.Category?.Name
+                            </span>
+                        </div>
+
+                        <div class="card-body d-flex flex-column p-4">
+                            <div class="d-flex align-items-center mb-2">
+                                <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center small fw-bold me-2" style="width:24px; height:24px;">
+                                    @(item.User?.FullName?.Substring(0, 1).ToUpper() ?? "E")
+                                </div>
+                                <small class="text-muted">@(item.User?.FullName ?? "KDemia Eğitmeni")</small>
                             </div>
-                        }
-                        else
-                        {
-                            <small class="text-muted"><i class="far fa-star"></i> Henüz değerlendirilmedi</small>
-                        }
-                    </div>
-                    <p class="card-text text-muted small">
-                        @(item.ShortDescription != null && item.ShortDescription.Length > 80
-                            ? item.ShortDescription.Substring(0, 80) + "..."
-                            : item.ShortDescription)
-                    </p>
 
-                    <div class="mt-auto d-flex justify-content-between align-items-center">
-                        <span class="text-primary fw-bold" style="font-size: 1.2rem;">
-                            @item.Price.ToString("C2")
-                        </span>
-                        <a asp-controller="Home" asp-action="Details" asp-route-id="@item.Id" class="btn btn-outline-dark btn-sm">İncele</a>
+                            <h5 class="card-title fw-bold mb-2 text-truncate">@item.Title</h5>
+
+                            <div class="mb-3 d-flex align-items-center">
+                                <span class="fw-bold text-warning me-1">@avgScore.ToString("0.0")</span>
+                                <div class="small text-warning me-2">
+                                    @for (int i = 1; i <= 5; i++)
+                                    {
+                                        if (i <= Math.Round(avgScore))
+                                        {
+                                            <i class="fas fa-star"></i>
+                                        }
+                                        else
+                                        {
+
+                                            <i class="far fa-star text-muted opacity-25"></i>
+                                        }
+                                    }
+                                </div>
+                                <small class="text-muted">(@reviewCount)</small>
+                            </div>
+
+                            <div class="mt-auto d-flex align-items-center justify-content-between border-top pt-3">
+                                <h5 class="text-primary fw-bold mb-0">@item.Price.ToString("C2")</h5>
+                                <span class="btn btn-sm btn-light rounded-pill px-3 fw-bold view-btn">İncele <i class="fas fa-arrow-right ms-1"></i></span>
+                            </div>
+                        </div>
                     </div>
-                </div>
-                <div class="card-footer bg-white border-0 text-muted small">
-                    <i class="fas fa-user"></i> @(item.User?.FullName ?? "Eğitmen")
-                </div>
+                </a>
             </div>
-        </div>
-    }
+        }
+    </div>
 </div>
 
 <style>
-    .hover-effect {
-        transition: transform 0.2s;
+    .course-card {
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        cursor: pointer;
     }
 
-    .hover-effect:hover {
-        transform: translateY(-5px);
+        .course-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.1) !important;
+        }
+
+            .course-card:hover .view-btn {
+                background-color: #0088cc;
+                color: white;
+            }
+
+    .hero-section {
+        position: relative;
+        overflow: hidden;
+    }
+    .form-control:focus, .form-select:focus {
+        box-shadow: none;
     }
 </style>

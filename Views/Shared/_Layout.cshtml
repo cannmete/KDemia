@@ -10,95 +10,129 @@
     <link rel="stylesheet" href="~/portoadmin/css/theme.css" />
     <link rel="stylesheet" href="~/portoadmin/css/custom.css" />
 
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+
     <style>
         body {
-            background-color: #f6f7f9;
+            font-family: 'Inter', sans-serif;
+            background-color: #f8f9fa;
         }
 
-        .user-header {
-            background: #fff;
-            border-bottom: 1px solid #ddd;
-            padding: 10px 0;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        .navbar-brand {
+            font-weight: 700;
+            letter-spacing: -0.5px;
         }
 
-        .nav-link {
-            font-weight: 600;
-            color: #555 !important;
-            margin-left: 15px;
+        /* Dropdown Geliştirmesi */
+        .user-dropdown-menu {
+            border: none;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            border-radius: 8px;
         }
 
-            .nav-link:hover {
-                color: #0088cc !important;
+        .user-dropdown-item {
+            padding: 10px 20px;
+            font-weight: 500;
+            color: #555;
+            transition: 0.2s;
+        }
+
+            .user-dropdown-item:hover {
+                background-color: #f0f2f5;
+                color: #0088cc;
             }
 
-        .footer {
-            background: #333;
-            color: #ccc;
-            padding: 20px 0;
-            margin-top: 50px;
+        .user-avatar {
+            width: 32px;
+            height: 32px;
+            background: #0088cc;
+            color: #fff;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            margin-right: 8px;
         }
+
+        /* Footer */
+        .site-footer {
+            background: #fff;
+            border-top: 1px solid #eee;
+            padding: 40px 0;
+            margin-top: auto;
+        }
+
+        .footer-link {
+            color: #666;
+            text-decoration: none;
+            margin: 0 10px;
+            transition: 0.2s;
+        }
+
+            .footer-link:hover {
+                color: #0088cc;
+            }
     </style>
-
-    @await RenderSectionAsync("Styles", required: false)
 </head>
+<body class="d-flex flex-column min-vh-100">
 
-<body>
-
-    <header class="user-header mb-4">
+    <header class="bg-white border-bottom sticky-top" style="z-index: 1040;">
         <div class="container">
-            <nav class="navbar navbar-expand-lg navbar-light">
-                <a class="navbar-brand" href="/Home/Index">
-                    <img src="~/portoadmin/img/logo.png" height="35" alt="KDemia Logo" />
+            <nav class="navbar navbar-expand-lg navbar-light py-3">
+                <a class="navbar-brand text-dark fs-4" asp-controller="Home" asp-action="Index">
+                    <i class="fas fa-cube text-primary me-2"></i>KDemia
                 </a>
 
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent">
                     <span class="navbar-toggler-icon"></span>
                 </button>
 
-                <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
-                    <ul class="navbar-nav align-items-center">
-
+                <div class="collapse navbar-collapse" id="navbarContent">
+                    <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                         <li class="nav-item">
-                            <a class="nav-link" asp-controller="Home" asp-action="Index">Ana Sayfa</a>
+                            <a class="nav-link text-dark fw-bold" asp-controller="Home" asp-action="Index">Eğitimler</a>
                         </li>
+                    </ul>
 
-                        @if (User.IsInRole("Admin"))
-                        {
-                            <li class="nav-item">
-                                <a class="btn btn-sm btn-danger text-white ml-3" asp-controller="Admin" asp-action="Index">
-                                    <i class="fas fa-cogs"></i> Yönetim Paneli
-                                </a>
-                            </li>
-                        }
-
+                    <ul class="navbar-nav align-items-center">
                         @if (User.Identity.IsAuthenticated)
                         {
-                            // Login olurken eklediğimiz "FullName" claim'ini çekmeye çalışıyoruz.
-                            // Bulamazsa varsayılan olarak User.Identity.Name (Email) gösterir.
-                            var userDisplayName = User.FindFirst("FullName")?.Value ?? User.Identity.Name;
-
-                            <li class="nav-item dropdown ms-3">
-                                <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown">
-                                    <i class="fas fa-user-circle fa-lg"></i> @userDisplayName
-                                </a>
-                                <div class="dropdown-menu dropdown-menu-end">
-                                    <a class="dropdown-item" asp-controller="Home" asp-action="Index">Profilim</a>
-                                    <a class="dropdown-item" asp-controller="Enrollment" asp-action="MyCourses">Kurslarım</a>
-                                    <div class="dropdown-divider"></div>
-                                    <a class="dropdown-item text-danger" asp-controller="Auth" asp-action="Logout">
-                                        <i class="fas fa-power-off"></i> Çıkış Yap
+                            // Admin Linki
+                            if (User.IsInRole("Admin"))
+                            {
+                                <li class="nav-item me-3">
+                                    <a class="btn btn-sm btn-outline-danger" asp-controller="Admin" asp-action="Index">
+                                        <i class="fas fa-shield-alt me-1"></i> Yönetim
                                     </a>
-                                </div>
+                                </li>
+                            }
+
+                            // Kullanıcı Menüsü
+                            var displayName = User.FindFirst("FullName")?.Value ?? User.Identity.Name;
+                            var initial = displayName.Substring(0, 1).ToUpper();
+
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle d-flex align-items-center text-dark" href="#" id="userMenu" role="button" data-bs-toggle="dropdown">
+                                    <div class="user-avatar">@initial</div>
+                                    <span class="fw-bold">@displayName</span>
+                                </a>
+                                <ul class="dropdown-menu dropdown-menu-end user-dropdown-menu" aria-labelledby="userMenu">
+                                    <li><a class="dropdown-item user-dropdown-item" asp-controller="Profile" asp-action="Index"><i class="fas fa-user-circle me-2"></i> Profilim</a></li>
+                                    <li><a class="dropdown-item user-dropdown-item" asp-controller="Enrollment" asp-action="MyCourses"><i class="fas fa-graduation-cap me-2"></i> Kurslarım</a></li>
+                                    <li><a class="dropdown-item user-dropdown-item" asp-controller="Wishlist" asp-action="Index"><i class="fas fa-heart me-2"></i> İstek Listem</a></li>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li><a class="dropdown-item user-dropdown-item text-danger" asp-controller="Auth" asp-action="Logout"><i class="fas fa-sign-out-alt me-2"></i> Çıkış Yap</a></li>
+                                </ul>
                             </li>
                         }
                         else
                         {
-                            <li class="nav-item ms-3">
-                                <a class="btn btn-outline-primary btn-sm px-4" asp-controller="Auth" asp-action="Login">Giriş Yap</a>
+                            <li class="nav-item me-2">
+                                <a class="btn btn-outline-primary px-4 fw-bold" asp-controller="Auth" asp-action="Login">Giriş</a>
                             </li>
-                            <li class="nav-item ms-2">
-                                <a class="btn btn-primary btn-sm px-4" asp-controller="Auth" asp-action="Register">Kayıt Ol</a>
+                            <li class="nav-item">
+                                <a class="btn btn-primary px-4 fw-bold" asp-controller="Auth" asp-action="Register">Kayıt Ol</a>
                             </li>
                         }
                     </ul>
@@ -107,13 +141,13 @@
         </div>
     </header>
 
-    <main role="main" class="container" style="min-height: 70vh;">
+    <main class="flex-grow-1">
         @RenderBody()
     </main>
 
-    <footer class="footer text-center">
-        <div class="container">
-            <p class="mb-0">&copy; @DateTime.Now.Year KDemia | Tüm hakları saklıdır.</p>
+    <footer class="site-footer text-center">
+        
+            <p class="text-muted mb-0">&copy; @DateTime.Now.Year KetchStudio</p>
         </div>
     </footer>
 

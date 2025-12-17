@@ -169,5 +169,99 @@ namespace KDemia.Controllers
         {
             return View();
         }
+
+        // AuthController içine eklenecekler:
+
+        // 1. ŞİFREMİ UNUTTUM SAYFASI (GET)
+        [HttpGet]
+        public IActionResult ForgotPassword()
+        {
+            return View();
+        }
+
+        // 2. ŞİFREMİ UNUTTUM İŞLEMİ (POST)
+        [HttpPost]
+        public async Task<IActionResult> ForgotPassword(ForgotPasswordViewModel model)
+        {
+            if (!ModelState.IsValid) return View(model);
+
+            var user = await _userManager.FindByEmailAsync(model.Email);
+
+            // Güvenlik gereği: Kullanıcı yoksa bile "Mail gönderildi" demeliyiz ki
+            // kötü niyetli kişiler hangi maillerin kayıtlı olduğunu anlayamasın.
+            if (user == null)
+            {
+                return RedirectToAction("ForgotPasswordConfirmation");
+            }
+
+            // A. Token Üret
+            var token = await _userManager.GeneratePasswordResetTokenAsync(user);
+
+            // B. Link Oluştur (ResetPassword action'ına gidecek)
+            var link = Url.Action("ResetPassword", "Auth", new { token, email = model.Email }, Request.Scheme);
+
+            // C. Mail Gönderme Simülasyonu
+            // Normalde burada EmailSender.SendEmail(...) çalışır.
+            // Biz testi kolaylaştırmak için linki TempData ile ekrana basacağız.
+            TempData["ResetLink"] = link;
+
+            return RedirectToAction("ForgotPasswordConfirmation");
+        }
+
+        // 3. ONAY EKRANI (Mail gitmiş gibi yapan sayfa)
+        [HttpGet]
+        public IActionResult ForgotPasswordConfirmation()
+        {
+            return View();
+        }
+
+        // 4. ŞİFRE SIFIRLAMA EKRANI (GET) - Linke tıklayınca burası açılır
+        [HttpGet]
+        public IActionResult ResetPassword(string token, string email)
+        {
+            if (token == null || email == null)
+            {
+                ModelState.AddModelError("", "Hatalı şifre sıfırlama linki.");
+            }
+
+            var model = new ResetPasswordViewModel { Token = token, Email = email };
+            return View(model);
+        }
+
+        // 5. ŞİFRE SIFIRLAMA İŞLEMİ (POST)
+        [HttpPost]
+        public async Task<IActionResult> ResetPassword(ResetPasswordViewModel model)
+        {
+            if (!ModelState.IsValid) return View(model);
+
+            var user = await _userManager.FindByEmailAsync(model.Email);
+            if (user == null)
+            {
+                // Kullanıcıyı bulamazsa yine de başarılı gibi davran (Güvenlik)
+                return RedirectToAction("ResetPasswordConfirmation");
+            }
+
+            // Identity işlemi: Token ve Yeni Şifreyi veriyoruz, o hallediyor.
+            var result = await _userManager.ResetPasswordAsync(user, model.Token, model.Password);
+
+            if (result.Succeeded)
+            {
+                return RedirectToAction("ResetPasswordConfirmation");
+            }
+
+            foreach (var error in result.Errors)
+            {
+                ModelState.AddModelError("", error.Description);
+            }
+
+            return View(model);
+        }
+
+        // 6. İŞLEM TAMAMLANDI EKRANI
+        [HttpGet]
+        public IActionResult ResetPasswordConfirmation()
+        {
+            return View();
+        }
     }
 }

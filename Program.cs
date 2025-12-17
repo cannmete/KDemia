@@ -26,7 +26,7 @@ builder.Services.AddIdentity<User, IdentityRole>(options =>
 {
     // Þifre Kurallarý
     options.Password.RequireDigit = true; // Sayý olsun
-    options.Password.RequiredLength = 4;  // En az 4 karakter
+    options.Password.RequiredLength = 6;  // En az 6 karakter
     options.Password.RequireNonAlphanumeric = false; // Sembol zorunlu deðil (!,*, vs.)
     options.Password.RequireUppercase = false; // Büyük harf zorunlu deðil
     options.Password.RequireLowercase = false; // Küçük harf zorunlu deðil
@@ -66,6 +66,6 @@ app.UseAuthorization();  // Yetki
 app.MapHub<KDemia.Hubs.NotificationHub>("/notificationHub");
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller=Auth}/{action=Login}/{id?}");
+    pattern: "{controller=Home}/{action=Index}/{id?}");
 
 app.Run();
