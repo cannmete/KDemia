@@ -28,7 +28,7 @@
             <tbody>
                 @foreach (var user in Model)
                 {
-                    // Her satırda kullanıcının rolünü soruyoruz
+
                     var roles = await UserManager.GetRolesAsync(user);
                     var userRole = roles.FirstOrDefault() ?? "User";
 

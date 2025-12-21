@@ -80,22 +80,22 @@
                 $.ajax({
                     url: '/Category/Delete',
                     type: 'POST',
-                    data: { id: id },        // Gönderilecek veri
+                    data: { id: id },
                     success: function (response) {
 
                         // 3. Başarılıysa ne olsun
                         if (response.success) {
 
-                            // O satırı (tr) bul ve yavaşça yok et - fadeOut
+
                             $("#row_" + id).fadeOut(500, function() {
-                                $(this).remove(); // Tamamen HTML'den sil
+                                $(this).remove(); 
                             });
 
-                            // Basit bir uyarı
+
                             alert(response.message);
                         }
                         else {
-                            // Backend'den hata geldiyse göster
+
                             alert("Hata: " + response.message);
                         }
                     },

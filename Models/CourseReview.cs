@@ -17,7 +17,7 @@ namespace KDemia.Models
 
         public DateTime CreatedDate { get; set; } = DateTime.Now;
 
-        // --- İLİŞKİLER ---
+
 
         public int CourseId { get; set; }
         [ForeignKey("CourseId")]

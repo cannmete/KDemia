@@ -16,20 +16,18 @@ namespace KDemia.Controllers
         private readonly GenericRepository<User> _userRepo;
         private readonly IMapper _mapper;
         private readonly IPasswordHasher<User> _passwordHasher;
-
-        // EKLENDİ: Rolleri sorgulamak için UserManager şart
         private readonly UserManager<User> _userManager;
 
         public AuthController(
             GenericRepository<User> userRepo,
             IMapper mapper,
             IPasswordHasher<User> passwordHasher,
-            UserManager<User> userManager) // Constructor'a eklendi
+            UserManager<User> userManager) 
         {
             _userRepo = userRepo;
             _mapper = mapper;
             _passwordHasher = passwordHasher;
-            _userManager = userManager; // Eşlendi
+            _userManager = userManager;
         }
 
         [HttpGet]
@@ -50,7 +48,7 @@ namespace KDemia.Controllers
                 return View(model);
             }
 
-            // 1. Email kontrolü (Repo üzerinden)
+            // 1. Email kontrolü
             var existingUser = _userRepo.Get(x => x.Email == model.Email);
             if (existingUser != null)
             {
@@ -109,9 +107,6 @@ namespace KDemia.Controllers
 
                 if (result == PasswordVerificationResult.Success)
                 {
-                    // --- BURASI GÜNCELLENDİ ---
-
-                    // 3. Kullanıcının GERÇEK rollerini veritabanından çekiyoruz
                     var userRoles = await _userManager.GetRolesAsync(user);
 
                     var claims = new List<Claim>
@@ -122,19 +117,14 @@ namespace KDemia.Controllers
                         new Claim("FullName", user.FullName ?? "")
                     };
 
-                    // Her bir rolü listeye ekliyoruz (Admin, User, Editor vb.)
                     foreach (var role in userRoles)
                     {
                         claims.Add(new Claim(ClaimTypes.Role, role));
                     }
-
-                    // Eğer kullanıcının hiç rolü yoksa, güvenlik için en azından 'User' verelim
                     if (!userRoles.Any())
                     {
                         claims.Add(new Claim(ClaimTypes.Role, "User"));
                     }
-
-                    // --- GÜNCELLEME BİTTİ ---
 
                     var claimsIdentity = new ClaimsIdentity(claims, IdentityConstants.ApplicationScheme);
 
@@ -170,16 +160,14 @@ namespace KDemia.Controllers
             return View();
         }
 
-        // AuthController içine eklenecekler:
-
-        // 1. ŞİFREMİ UNUTTUM SAYFASI (GET)
+        // 1. ŞİFREMİ UNUTTUM SAYFASI
         [HttpGet]
         public IActionResult ForgotPassword()
         {
             return View();
         }
 
-        // 2. ŞİFREMİ UNUTTUM İŞLEMİ (POST)
+        // 2. ŞİFREMİ UNUTTUM İŞLEMİ
         [HttpPost]
         public async Task<IActionResult> ForgotPassword(ForgotPasswordViewModel model)
         {
@@ -187,8 +175,6 @@ namespace KDemia.Controllers
 
             var user = await _userManager.FindByEmailAsync(model.Email);
 
-            // Güvenlik gereği: Kullanıcı yoksa bile "Mail gönderildi" demeliyiz ki
-            // kötü niyetli kişiler hangi maillerin kayıtlı olduğunu anlayamasın.
             if (user == null)
             {
                 return RedirectToAction("ForgotPasswordConfirmation");
@@ -197,25 +183,23 @@ namespace KDemia.Controllers
             // A. Token Üret
             var token = await _userManager.GeneratePasswordResetTokenAsync(user);
 
-            // B. Link Oluştur (ResetPassword action'ına gidecek)
+            // B. Link Oluştur
             var link = Url.Action("ResetPassword", "Auth", new { token, email = model.Email }, Request.Scheme);
 
             // C. Mail Gönderme Simülasyonu
-            // Normalde burada EmailSender.SendEmail(...) çalışır.
-            // Biz testi kolaylaştırmak için linki TempData ile ekrana basacağız.
             TempData["ResetLink"] = link;
 
             return RedirectToAction("ForgotPasswordConfirmation");
         }
 
-        // 3. ONAY EKRANI (Mail gitmiş gibi yapan sayfa)
+        // 3. ONAY EKRANI
         [HttpGet]
         public IActionResult ForgotPasswordConfirmation()
         {
             return View();
         }
 
-        // 4. ŞİFRE SIFIRLAMA EKRANI (GET) - Linke tıklayınca burası açılır
+        // 4. ŞİFRE SIFIRLAMA EKRANI
         [HttpGet]
         public IActionResult ResetPassword(string token, string email)
         {
@@ -228,7 +212,7 @@ namespace KDemia.Controllers
             return View(model);
         }
 
-        // 5. ŞİFRE SIFIRLAMA İŞLEMİ (POST)
+        // 5. ŞİFRE SIFIRLAMA İŞLEMİ
         [HttpPost]
         public async Task<IActionResult> ResetPassword(ResetPasswordViewModel model)
         {
@@ -237,11 +221,9 @@ namespace KDemia.Controllers
             var user = await _userManager.FindByEmailAsync(model.Email);
             if (user == null)
             {
-                // Kullanıcıyı bulamazsa yine de başarılı gibi davran (Güvenlik)
                 return RedirectToAction("ResetPasswordConfirmation");
             }
 
-            // Identity işlemi: Token ve Yeni Şifreyi veriyoruz, o hallediyor.
             var result = await _userManager.ResetPasswordAsync(user, model.Token, model.Password);
 
             if (result.Succeeded)

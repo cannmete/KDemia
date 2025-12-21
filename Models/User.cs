@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using System;
-using System.Collections.Generic; // ICollection için gerekli
+using System.Collections.Generic;
 
 namespace KDemia.Models
 {

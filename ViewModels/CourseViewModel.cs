@@ -7,10 +7,10 @@ namespace KDemia.ViewModels
 {
     public class CourseViewModel
     {
-        // Eğitim bilgileri
+
         public Course Course { get; set; }
 
-        // Dropdown için Kategori Listesi
+
         public IEnumerable<SelectListItem> CategoryList { get; set; }
     }
 }

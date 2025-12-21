@@ -27,10 +27,9 @@
     <tbody>
         @foreach (var user in Model)
         {
-            // Her satırda veritabanına soruyoruz: "Bu arkadaşın rolü ne?"
-            // Not: Çok fazla kullanıcı varsa bu yöntem biraz yavaş çalışabilir ama admin paneli için sorun olmaz.
+
             var roles = await UserManager.GetRolesAsync(user);
-            var userRole = roles.FirstOrDefault() ?? "User"; // Rolü yoksa 'User' varsay
+            var userRole = roles.FirstOrDefault() ?? "User"; 
 
             <tr>
                 <td>@user.FullName</td>

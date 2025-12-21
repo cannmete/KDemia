@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using KDemia.Models;
 using KDemia.Repositories;
 using System.Security.Claims;
-using System.Threading.Tasks; // Task.Delay için
+using System.Threading.Tasks;
 
 namespace KDemia.Controllers
 {
@@ -25,12 +25,12 @@ namespace KDemia.Controllers
         [HttpGet]
         public IActionResult Checkout(int courseId)
         {
-            // Kursun detaylarını çekelim ki ödeme ekranında "Şunu alıyorsunuz: 100 TL" diyebilelim
+
             var course = _courseRepo.Get(x => x.Id == courseId);
 
             if (course == null) return NotFound();
 
-            // Kullanıcı bu kursu zaten almış mı kontrolü
+
             var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             var existing = _enrollmentRepo.GetAll().FirstOrDefault(x => x.UserId == userId && x.CourseId == courseId);
 
@@ -46,12 +46,12 @@ namespace KDemia.Controllers
         [HttpPost]
         public async Task<IActionResult> CompletePurchase(int courseId)
         {
-            // Simülasyon: Sanki bankaya bağlanıyormuşuz gibi 2 saniye bekletelim
+
             await Task.Delay(2000);
 
             var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
-            // Tekrar kontrol (Güvenlik)
+
             var existing = _enrollmentRepo.GetAll().FirstOrDefault(x => x.UserId == userId && x.CourseId == courseId);
             if (existing != null) return RedirectToAction("MyCourses");
 
@@ -64,7 +64,7 @@ namespace KDemia.Controllers
 
             _enrollmentRepo.Add(enrollment);
 
-            // Başarılı ödeme sonrası Kurslarım'a yönlendir
+
             return RedirectToAction("MyCourses");
         }
 
@@ -73,9 +73,6 @@ namespace KDemia.Controllers
         {
             var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
-            // Kurs bilgileriyle beraber Enrollment kayıtlarını çekiyoruz
-            // Not: View tarafında Enrollment ID'si lazım olacağı için direkt Course listesi yerine
-            // Enrollment listesi gönderiyoruz.
             var enrollments = _enrollmentRepo.GetAll("Course")
                                              .Where(x => x.UserId == userId)
                                              .OrderByDescending(x => x.EnrollmentDate)
@@ -92,7 +89,7 @@ namespace KDemia.Controllers
 
             if (enrollment != null)
             {
-                // Sadece kendi kursunu silebilir (Güvenlik)
+
                 var currentUserId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
                 if (enrollment.UserId == currentUserId)
                 {

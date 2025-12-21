@@ -16,12 +16,11 @@ namespace KDemia.Data
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
-            base.OnModelCreating(builder); // Identity için bu satır şart!
+            base.OnModelCreating(builder); 
 
             // --- YORUM TABLOSU AYARLARI ---
 
             // 1. Kurs silinirse -> Yorumlar SİLİNSİN (Cascade)
-            // Çünkü kurs yoksa yorumun bir anlamı kalmaz.
             builder.Entity<CourseReview>()
                 .HasOne(r => r.Course)
                 .WithMany(c => c.Reviews)
@@ -29,7 +28,7 @@ namespace KDemia.Data
                 .OnDelete(DeleteBehavior.Cascade);
 
             // 2. Kullanıcı silinirse -> Yorumlar SİLİNMESİN (Restrict)
-            // Hata almamak için zinciri buradan kırıyoruz.
+
             builder.Entity<CourseReview>()
                 .HasOne(r => r.User)
                 .WithMany(u => u.Reviews)
@@ -37,15 +36,15 @@ namespace KDemia.Data
                 .OnDelete(DeleteBehavior.Restrict);
 
             // 1. Kullanıcı silinirse -> Satın alma geçmişi SİLİNMESİN (Restrict)
-            // Bu sayede kullanıcıyı silmeye çalışırsan "Önce kayıtları temizle" hatası alırsın, veri kaybı önlenir.
+
             builder.Entity<CourseEnrollment>()
                 .HasOne(e => e.User)
-                .WithMany() // User modelinde 'Enrollments' koleksiyonu varsa buraya yazabilirsin, yoksa boş bırak.
+                .WithMany() 
                 .HasForeignKey(e => e.UserId)
                 .OnDelete(DeleteBehavior.Restrict);
 
             // 2. Kurs silinirse -> Satın alma kaydı SİLİNMESİN (Restrict)
-            // Bir kursu sildiğinde, onu satın alan öğrencilerin geçmişini bozmamak için bunu da kısıtlıyoruz.
+
             builder.Entity<CourseEnrollment>()
                 .HasOne(e => e.Course)
                 .WithMany()

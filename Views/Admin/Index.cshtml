@@ -139,7 +139,7 @@
 
             // 3. "ReceiveNotification" olayını dinle
             connection.on("ReceiveNotification", function (message) {
-                // Toastr ile sağ üstte bildirim göster
+
                 toastr.info(message, "Yeni Bildirim", {
                     "closeButton": true,
                     "progressBar": true,
@@ -147,8 +147,7 @@
                     "timeOut": "5000"
                 });
 
-                // İstersen burada sayfadaki "Toplam Yorum Sayısı"nı da AJAX ile güncelleyebilirsin
-                // Ama şimdilik sadece bildirim yeterli.
+
             });
         });
     </script>

@@ -36,7 +36,7 @@ namespace KDemia.Controllers
         {
             if (ModelState.IsValid)
             {
-                category.CreatedDate = DateTime.Now; // Tarihi ata
+                category.CreatedDate = DateTime.Now;
                 _categoryRepo.Add(category);
                 return RedirectToAction("Index");
             }
@@ -65,7 +65,7 @@ namespace KDemia.Controllers
             return View(category);
         }
 
-        // 4. SİLME İŞLEMİ (AJAX İÇİN JSON DÖNDÜRDÜK)
+        // 4. SİLME İŞLEMİ (AJAX İÇİN JSON DÖNDÜRDÜM)
         [HttpPost]
         public IActionResult Delete(int id)
         {

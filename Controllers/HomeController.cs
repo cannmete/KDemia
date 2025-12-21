@@ -39,7 +39,6 @@ namespace KDemia.Controllers
         // 1. Home/Index
         public IActionResult Index(string search, int? categoryId)
         {
-            // "User" include ederek eðitmen adýný ana sayfada gösterebilirsin
             var courses = _courseRepo.GetAll("Category", "User", "Reviews")
                                      .Where(x => x.IsPublished == true)
                                      .AsQueryable();
@@ -72,7 +71,7 @@ namespace KDemia.Controllers
         // 2. KURS DETAY SAYFASI
         public IActionResult Details(int id)
         {
-            // 1. Kursu bul (Sadece kurs bilgileri gelir)
+            // 1. Kursu bul
             var course = _courseRepo.Get(x => x.Id == id);
 
             if (course == null || !course.IsPublished)
@@ -83,24 +82,22 @@ namespace KDemia.Controllers
             // 2. Kategori bilgisini doldur
             course.Category = _categoryRepo.Get(x => x.Id == course.CategoryId);
 
-            // 3. Eðitmen bilgisini doldur (UserId artýk String olduðu için sorun yok)
+            // 3. Eðitmen bilgisini doldur
             course.User = _userRepo.Get(x => x.Id == course.UserId);
 
-            // 4. --- YENÝ EKLENEN KISIM: Yorumlarý Getir ---
-            // Yorumlarý çekerken, yorumu yapan kiþiyi ("User") da getirmemiz lazým.
-            // _reviewRepo.GetAll("User") diyerek User tablosunu dahil ediyoruz.
-            // Ardýndan Where ile sadece BU kursa ait olanlarý süzüyoruz.
+            // 4. Yorumlarý Getir
+
 
             course.Reviews = _reviewRepo.GetAll("User")
                                         .Where(x => x.CourseId == id)
-                                        .OrderByDescending(x => x.CreatedDate) // En yeni yorum en üstte görünsün
+                                        .OrderByDescending(x => x.CreatedDate)
                                         .ToList();
 
             bool isInWishlist = false;
             if (User.Identity.IsAuthenticated)
             {
                 var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
-                // Kullanýcý bu kursu eklemiþ mi kontrol et
+
                 var wishlistItem = _wishlistRepo.GetAll()
                                                 .FirstOrDefault(x => x.UserId == userId && x.CourseId == id);
                 isInWishlist = wishlistItem != null;
@@ -112,21 +109,20 @@ namespace KDemia.Controllers
         }
         // 3. YORUM KAYDETME (POST)
         [HttpPost]
-        [Authorize] // Sadece giriþ yapmýþ kullanýcýlar yorum yapabilir
+        [Authorize] 
         public async Task<IActionResult> AddReview(int courseId, int rating, string comment)
         {
-            // O anki kullanýcýnýn ID'sini Identity'den buluyoruz
+
             var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
             if (userId == null) return RedirectToAction("Login", "Auth");
 
-            // Basit bir kontrol: Boþ yorumu engelle
             if (string.IsNullOrEmpty(comment) || rating < 1 || rating > 5)
             {
                 return RedirectToAction("Details", new { id = courseId });
             }
 
-            // Yorum nesnesini oluþtur
+ 
             var newReview = new CourseReview
             {
                 CourseId = courseId,
@@ -136,18 +132,17 @@ namespace KDemia.Controllers
                 CreatedDate = DateTime.Now
             };
 
-            // Veritabanýna kaydet
             _reviewRepo.Add(newReview);
 
             string message = $"{User.Identity.Name} kullanýcýsý bir kursa yorum yaptý!";
              await _hubContext.Clients.All.SendAsync("ReceiveNotification", message);
 
-            // Detay sayfasýna geri dön (Yorumun göründüðü yer)
+
             return RedirectToAction("Details", new { id = courseId });
         }
 
         [HttpPost]
-        [Authorize] // Giriþ yapmýþ olmak þart
+        [Authorize] 
         public async Task<IActionResult> DeleteReview(int id)
         {
             // 1. Yorumu bul
@@ -155,7 +150,7 @@ namespace KDemia.Controllers
             if (review == null) return NotFound();
 
             // 2. Güvenlik Kontrolü: Sadece 'Admin' silebilir.
-            // (Ýstersen || review.UserId == currentUserId ekleyerek kiþinin kendi yorumunu silmesini de saðlayabilirsin)
+
             if (User.IsInRole("Admin"))
             {
                 // 3. Silme iþlemi

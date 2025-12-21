@@ -5,7 +5,7 @@ namespace KDemia.ViewModels
     public class ResetPasswordViewModel
     {
         [Required]
-        public string Token { get; set; } // Identity'nin ürettiği gizli anahtar
+        public string Token { get; set; }
 
         [Required]
         [EmailAddress]

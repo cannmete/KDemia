@@ -41,22 +41,22 @@ namespace KDemia.Controllers
         {
             if (!ModelState.IsValid)
             {
-                // Hata varsa sayfaya geri dön (View'da sekme mantığı olduğu için Index'e dönüyoruz)
+
                 return View("Index", model);
             }
 
             var user = await _userManager.GetUserAsync(User);
             if (user == null) return RedirectToAction("Login", "Auth");
 
-            // Değişiklikleri uygula
+
             user.FullName = model.FullName;
             user.PhoneNumber = model.PhoneNumber;
 
-            // Email değişirse güvenlik süreçleri (onay vs.) gerekir, şimdilik basit tutalım:
+
             if (user.Email != model.Email)
             {
                 user.Email = model.Email;
-                user.UserName = model.Email; // UserName'i de Email ile aynı tutuyoruz
+                user.UserName = model.Email; 
             }
 
             var result = await _userManager.UpdateAsync(user);
@@ -64,7 +64,7 @@ namespace KDemia.Controllers
             if (result.Succeeded)
             {
                 TempData["SuccessMessage"] = "Profil bilgileriniz başarıyla güncellendi.";
-                // Oturumu tazele (Email değiştiyse cookie bozulmasın diye)
+
                 await _signInManager.RefreshSignInAsync(user);
                 return RedirectToAction("Index");
             }
@@ -83,9 +83,7 @@ namespace KDemia.Controllers
         {
             if (!ModelState.IsValid)
             {
-                // Validation hatası varsa ana sayfaya dönüyoruz ama aslında 
-                // ayrı bir viewmodel yollamamız lazım.
-                // Basitlik adına TempData ile hata yollayıp redirect edeceğiz.
+
                 TempData["ErrorMessage"] = "Lütfen alanları doğru doldurunuz.";
                 return RedirectToAction("Index");
             }
@@ -97,16 +95,16 @@ namespace KDemia.Controllers
 
             if (result.Succeeded)
             {
-                // Çok Önemli: Şifre değişince SecurityStamp değişir, oturum düşmesin diye tazeliyoruz.
+
                 await _signInManager.RefreshSignInAsync(user);
                 TempData["SuccessMessage"] = "Şifreniz başarıyla değiştirildi.";
                 return RedirectToAction("Index");
             }
 
-            // Hata varsa (Örn: Eski şifre yanlış)
+            // Hata varsa
             foreach (var error in result.Errors)
             {
-                TempData["ErrorMessage"] = error.Description; // "Incorrect password." gibi
+                TempData["ErrorMessage"] = error.Description; 
             }
 
             return RedirectToAction("Index");
